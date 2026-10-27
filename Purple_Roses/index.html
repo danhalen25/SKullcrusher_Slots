@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purple Roses: Cottagecore Garden Slots</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;0,900;1,600&family=Quicksand:wght@500;600;700&display=swap');
+        
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: radial-gradient(circle at 50% 15%, #2d1836 0%, #170d1e 55%, #0a040e 100%);
+            color: #f7eef7;
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        .serif-title {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .cottage-border {
+            border: 2px solid #d8b4e2;
+            box-shadow: 0 0 20px rgba(186, 104, 200, 0.25), inset 0 0 15px rgba(186, 104, 200, 0.1);
+        }
+
+        .symbol-card {
+            transition: transform 0.22s ease-out, filter 0.2s ease;
+        }
+
+        .blooming-wild {
+            box-shadow: 0 0 22px #c084fc, inset 0 0 16px #f472b6;
+            border: 2px solid #e879f9;
+            animation: bloomPulse 1.4s infinite alternate ease-in-out;
+        }
+
+        @keyframes bloomPulse {
+            0% { transform: scale(0.97); filter: drop-shadow(0 0 6px #c084fc); }
+            100% { transform: scale(1.03); filter: drop-shadow(0 0 16px #f472b6); }
+        }
+
+        .shake {
+            animation: screenShake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes screenShake {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(3px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+            40%, 60% { transform: translate3d(5px, 0, 0); }
+        }
+
+        .rolling {
+            animation: rollBlur 0.14s infinite linear;
+        }
+
+        @keyframes rollBlur {
+            0% { transform: translateY(-12px); filter: blur(3px); opacity: 0.55; }
+            50% { transform: translateY(12px); filter: blur(3px); opacity: 0.85; }
+            100% { transform: translateY(-12px); filter: blur(3px); opacity: 0.55; }
+        }
+
+        .flying-petal {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            font-size: 1.5rem;
+            filter: drop-shadow(0 0 8px #f472b6);
+            transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.8s ease-in;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Garden Pick Card Flipping */
+        .rose-card {
+            perspective: 800px;
+        }
+        .rose-inner {
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        .rose-inner.flipped {
+            transform: rotateY(180deg);
+        }
+        .rose-front, .rose-back {
+            backface-visibility: hidden;
+        }
+        .rose-back {
+            transform: rotateY(180deg);
+        }
+
+        /* Wheel Pointer */
+        .wheel-pointer {
+            width: 0;
+            height: 0;
+            border-left: 14px solid transparent;
+            border-right: 14px solid transparent;
+            border-top: 24px solid #f472b6;
+            filter: drop-shadow(0 0 6px rgba(244, 114, 182, 0.8));
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-between p-2 sm:p-4 text-xs sm:text-sm">
+
+    <!-- Subtle Version Tag -->
+    <div class="fixed bottom-1 right-2 text-[9px] text-purple-400/50 font-mono select-none pointer-events-none z-50">
+        v1.3.0 - Secret Conservatory
+    </div>
+
+    <!-- Header & Jackpots -->
+    <header class="w-full max-w-4xl flex flex-col items-center gap-2">
+        <div class="flex items-center justify-between w-full border-b border-purple-800/40 pb-2 px-2">
+            <div class="flex items-center gap-2">
+                <span class="text-2xl">🌹</span>
+                <h1 class="text-xl sm:text-2xl font-black text-purple-200 tracking-wider serif-title italic">PURPLE ROSES</h1>
+            </div>
+            
+            <!-- Hidden by default: only appears when '?dev=true' is in the URL -->
+            <div id="dev-controls" class="hidden flex gap-1.5 flex-wrap">
+                <button id="btn-test-orb" class="bg-purple-900/80 hover:bg-purple-800 text-purple-200 border border-purple-500 text-xs px-2 py-1 rounded shadow transition">
+                    🌸 TEST WILD
+                </button>
+                <button id="btn-test-bonus" class="bg-pink-900/80 hover:bg-pink-800 text-pink-200 border border-pink-500 text-xs px-2 py-1 rounded shadow transition">
+                    🌹 TEST GARDEN
+                </button>
+                <button id="btn-test-wheel" class="bg-amber-900/80 hover:bg-amber-800 text-amber-200 border border-amber-500 text-xs px-2 py-1 rounded shadow transition">
+                    🎡 TEST WHEEL
+                </button>
+            </div>
+        </div>
+
+        <!-- Level & XP Status Bar -->
+        <div class="w-full bg-purple-950/60 border border-purple-800/40 rounded-lg p-2 flex items-center justify-between gap-3 shadow-inner">
+            <div class="flex items-center gap-2">
+                <span class="bg-gradient-to-r from-purple-600 to-pink-500 text-purple-950 font-extrabold px-2.5 py-0.5 rounded text-xs tracking-wider">LEVEL <span id="display-level">1</span></span>
+                <span class="text-[11px] text-purple-200 font-bold tracking-wide serif-title" id="display-rank-title">GARDEN COTTAGE ROOKIE</span>
+            </div>
+            <div class="flex-1 max-w-xs flex flex-col items-end">
+                <div class="w-full bg-stone-950 rounded-full h-2.5 border border-purple-800/40 overflow-hidden">
+                    <div id="xp-bar" class="bg-gradient-to-r from-purple-500 via-pink-400 to-amber-300 h-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <span class="text-[10px] text-purple-300/80 mt-0.5" id="xp-text">0 / 500 XP (Earn on 10X+ Wins)</span>
+            </div>
+        </div>
+
+        <!-- Botanical Jackpots -->
+        <div class="grid grid-cols-4 gap-2 w-full text-center">
+            <div class="bg-purple-950/50 border border-purple-800/50 rounded p-1 sm:p-2">
+                <div class="text-[10px] text-amber-300 font-bold">MINI (15x)</div>
+                <div id="jp-mini" class="text-amber-200 font-bold text-xs sm:text-base truncate">1,500</div>
+            </div>
+            <div class="bg-purple-950/50 border border-purple-800/50 rounded p-1 sm:p-2">
+                <div class="text-[10px] text-blue-300 font-bold">MINOR (50x)</div>
+                <div id="jp-minor" class="text-blue-200 font-bold text-xs sm:text-base truncate">5,000</div>
+            </div>
+            <div class="bg-purple-950/50 border border-purple-800/50 rounded p-1 sm:p-2">
+                <div class="text-[10px] text-purple-300 font-bold">MAJOR (250x)</div>
+                <div id="jp-major" class="text-purple-200 font-bold text-xs sm:text-base truncate">25,000</div>
+            </div>
+            <div class="bg-purple-950/50 border border-pink-500/70 rounded p-1 sm:p-2 shadow-[0_0_12px_rgba(244,114,182,0.2)]">
+                <div class="text-[10px] text-pink-300 font-bold">GRAND (1000x)</div>
+                <div id="jp-grand" class="text-pink-200 font-black text-xs sm:text-base animate-pulse truncate">100,000</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Reel Area (5x3) -->
+    <main id="slot-machine" class="relative w-full max-w-4xl bg-purple-950/40 cottage-border rounded-xl p-3 sm:p-4 my-2 flex flex-col items-center backdrop-blur-sm">
+        <svg id="payline-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></svg>
+
+        <div id="reels-grid" class="grid grid-cols-5 gap-1.5 sm:gap-2.5 w-full aspect-[5/3] max-h-[440px]">
+            <!-- 15 slots generated via JS -->
+        </div>
+
+        <div id="falling-banner" class="hidden mt-2 text-center text-pink-300 font-bold text-xs sm:text-sm animate-pulse tracking-wide">
+            🌸 BLOOMING WALKING WILD ACTIVE! RESPINNING...
+        </div>
+    </main>
+
+    <!-- Console Controls -->
+    <footer class="w-full max-w-4xl bg-purple-950/80 border-t border-purple-800/40 p-2 sm:p-3 rounded-t-xl flex flex-col gap-2.5 backdrop-blur-md">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <!-- Bank & Last Win -->
+            <div class="flex items-center gap-4">
+                <div id="bank-container" class="relative p-1 rounded transition-colors duration-300">
+                    <div class="text-[10px] text-purple-300/70 uppercase tracking-widest">Bank Balance</div>
+                    <div id="display-bank" class="text-xl sm:text-2xl font-black text-amber-200 transition-all duration-300">10,000</div>
+                </div>
+                <div class="border-l border-purple-800/60 pl-4">
+                    <div class="text-[10px] text-purple-300/70 uppercase tracking-widest">Last Win</div>
+                    <div id="display-win" class="text-lg sm:text-xl font-bold text-emerald-300">0</div>
+                </div>
+            </div>
+
+            <!-- Big Spin Button -->
+            <button id="btn-spin" class="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-500 hover:from-purple-500 hover:to-pink-500 text-purple-950 font-black text-base sm:text-lg rounded-lg shadow-[0_0_20px_rgba(232,121,249,0.45)] transition active:scale-95 disabled:opacity-50 disabled:pointer-events-none">
+                SPIN (100)
+            </button>
+        </div>
+
+        <!-- Bet Selection Row -->
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+            <span class="text-xs text-purple-300 font-bold mr-1 shrink-0">BET:</span>
+            <div class="inline-flex rounded-md shadow-sm shrink-0 gap-1" role="group">
+                <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-purple-900/60 border border-purple-800 text-purple-200 rounded hover:bg-purple-800 transition active:scale-95" data-bet="1">1</button>
+                <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-purple-900/60 border border-purple-800 text-purple-200 rounded hover:bg-purple-800 transition active:scale-95" data-bet="10">10</button>
+                <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-pink-600 border border-pink-400 text-purple-950 rounded hover:bg-pink-500 transition active:scale-95" data-bet="100">100</button>
+                <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-purple-900/60 border border-purple-800 text-purple-200 rounded hover:bg-purple-800 transition active:scale-95" data-bet="1000">1K</button>
+                <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-purple-900/60 border border-purple-800 text-purple-200 rounded hover:bg-purple-800 transition active:scale-95" data-bet="100000">100K</button>
+                <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-purple-900/60 border border-purple-800 text-purple-200 rounded hover:bg-purple-800 transition active:scale-95" data-bet="500000">500K</button>
+                <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-purple-900/60 border border-purple-800 text-purple-200 rounded hover:bg-purple-800 transition active:scale-95" data-bet="1000000">1M</button>
+                <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-purple-900/60 border border-purple-800 text-purple-200 rounded hover:bg-purple-800 transition active:scale-95" data-bet="5000000">5M</button>
+                <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-purple-900/60 border border-purple-800 text-purple-200 rounded hover:bg-purple-800 transition active:scale-95" data-bet="10000000">10M</button>
+                <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-purple-900/60 border border-purple-800 text-purple-200 rounded hover:bg-purple-800 transition active:scale-95" data-bet="100000000">100M</button>
+                <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-purple-900/60 border border-purple-800 text-purple-200 rounded hover:bg-purple-800 transition active:scale-95" data-bet="1000000000">1B</button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- BIG WIN OVERLAY -->
+    <div id="modal-big-win" class="fixed inset-0 bg-black/85 flex items-center justify-center hidden z-50">
+        <div class="text-center p-6 bg-gradient-to-b from-purple-950 to-stone-950 border-4 border-pink-400 rounded-2xl shadow-[0_0_60px_#f472b6] max-w-sm w-full mx-4">
+            <h2 id="big-win-title" class="text-3xl sm:text-4xl font-black text-pink-300 serif-title animate-bounce">LOVELY BLOOM!</h2>
+            <div id="big-win-amount" class="text-3xl sm:text-4xl font-black text-amber-200 my-4 break-words">0</div>
+            <p id="big-win-multiplier" class="text-sm font-bold text-purple-200 uppercase tracking-widest mb-2">15X TOTAL BET</p>
+            <div id="big-win-xp" class="text-pink-300 font-black text-base mb-4 bg-purple-900/60 border border-pink-500 rounded py-1 px-3 inline-block">+100 XP AWARDED!</div>
+            <div>
+                <button id="btn-dismiss-bigwin" class="px-6 py-2 bg-gradient-to-r from-pink-600 to-purple-600 text-purple-950 font-black rounded-lg hover:from-pink-500 hover:to-purple-500 transition">COLLECT BOUNTY</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LEVEL UP CELEBRATION MODAL -->
+    <div id="modal-levelup" class="fixed inset-0 bg-black/90 flex items-center justify-center hidden z-50">
+        <div class="text-center p-6 bg-gradient-to-b from-purple-950 to-stone-950 border-4 border-purple-400 rounded-2xl shadow-[0_0_80px_#e879f9] max-w-sm w-full mx-4">
+            <div class="text-pink-400 text-4xl mb-2">🌸</div>
+            <h2 class="text-3xl font-black text-pink-300 serif-title animate-pulse">GARDEN LEVEL UP!</h2>
+            <div class="text-xl font-bold text-purple-100 mt-2">REACHED LEVEL <span id="levelup-num" class="text-pink-400">2</span></div>
+            <div id="levelup-title" class="text-sm font-bold text-amber-200 mt-1 mb-4 serif-title">COTTAGE BOTANIST</div>
+            <div class="bg-purple-900/60 border border-purple-500/70 rounded-lg p-3 mb-5 text-xs text-purple-200">
+                <span>Botanical Gift Granted:</span>
+                <div id="levelup-bonus-reward" class="text-lg font-black text-emerald-300 mt-1">+10,000 Credits</div>
+            </div>
+            <button id="btn-dismiss-levelup" class="px-6 py-2.5 bg-gradient-to-r from-pink-500 to-purple-500 text-purple-950 font-black rounded-lg hover:from-pink-400 hover:to-purple-400 transition shadow">TEND THE GARDEN</button>
+        </div>
+    </div>
+
+    <!-- THE SECRET ROSE GARDEN PICK-AND-WIN BONUS OVERLAY -->
+    <div id="modal-bonus" class="fixed inset-0 bg-stone-950/95 flex flex-col items-center justify-between p-3 sm:p-5 hidden z-40 overflow-y-auto">
+        <div class="w-full max-w-3xl flex justify-between items-center border-b border-purple-800/60 pb-2">
+            <div>
+                <div class="text-base sm:text-xl font-black text-pink-300 serif-title">THE SECRET ROSE GARDEN</div>
+                <div class="text-xs text-purple-300/80">Pick unopened roses to reveal prizes, multipliers, wheel spins & extra picks!</div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-xs sm:text-sm font-bold">PICKS: <span id="bonus-picks" class="text-pink-400 text-xl font-black">3</span></div>
+                <div class="text-xs sm:text-sm font-bold">BONUS WIN: <span id="bonus-win-total" class="text-emerald-300 text-xl font-black">0</span></div>
+            </div>
+        </div>
+
+        <!-- Multiplier Pill Banner -->
+        <div class="my-2 flex items-center gap-2">
+            <span class="text-xs text-purple-300 font-bold">GARDEN MULTIPLIER:</span>
+            <span id="bonus-multiplier" class="bg-gradient-to-r from-pink-600 to-purple-600 px-3 py-0.5 rounded-full text-xs font-black text-purple-950 shadow">1X</span>
+        </div>
+
+        <!-- 15 Rosebud Pick Grid -->
+        <div id="garden-grid" class="grid grid-cols-5 gap-2 sm:gap-3 w-full max-w-xl my-auto py-2">
+            <!-- 15 rose cards populated dynamically -->
+        </div>
+
+        <div class="w-full max-w-xl flex justify-between items-center bg-purple-950/70 border border-purple-800 p-2.5 rounded text-xs text-purple-300">
+            <div id="bonus-status-msg">Choose carefully among the conservatory roses...</div>
+            <button id="btn-bonus-collect" class="hidden px-5 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-purple-950 font-black rounded shadow hover:from-pink-400 hover:to-purple-400 active:scale-95">
+                COLLECT ALL
+            </button>
+        </div>
+    </div>
+
+    <!-- BOTANICAL FORTUNE WHEEL MODAL -->
+    <div id="modal-wheel" class="fixed inset-0 bg-black/90 flex flex-col items-center justify-center hidden z-50 p-4">
+        <div class="relative bg-gradient-to-b from-purple-950 to-stone-950 border-4 border-pink-400 rounded-3xl p-6 flex flex-col items-center shadow-[0_0_80px_#f472b6] max-w-md w-full">
+            <div class="text-xs font-bold text-pink-300 tracking-widest uppercase mb-1">Secret Conservatory</div>
+            <h2 class="text-2xl font-black text-amber-200 serif-title mb-4">BOTANICAL FORTUNE WHEEL</h2>
+
+            <!-- Wheel Canvas Container -->
+            <div class="relative w-[280px] h-[280px] sm:w-[320px] sm:h-[320px] my-2 flex items-center justify-center">
+                <canvas id="wheel-canvas" width="320" height="320" class="w-full h-full rounded-full shadow-2xl"></canvas>
+                <!-- Center Pointer at Top -->
+                <div class="absolute -top-3 left-1/2 -translate-x-1/2 wheel-pointer z-20"></div>
+                <!-- Center Rosette Pin -->
+                <div class="absolute w-12 h-12 bg-gradient-to-tr from-pink-600 to-purple-800 rounded-full border-2 border-pink-300 flex items-center justify-center text-xl shadow-lg z-10 pointer-events-none">
+                    🌹
+                </div>
+            </div>
+
+            <div id="wheel-result" class="text-center text-lg font-black text-amber-200 my-3 h-7">
+                Spin the wheel to win jackpots & multipliers!
+            </div>
+
+            <button id="btn-spin-wheel" class="w-full py-3 bg-gradient-to-r from-pink-500 via-purple-500 to-pink-600 hover:from-pink-400 hover:to-purple-400 text-purple-950 font-black text-base rounded-xl shadow-lg transition active:scale-95 disabled:opacity-50">
+                SPIN THE WHEEL
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- Developer Mode Check ---
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('dev') === 'true') {
+            document.getElementById('dev-controls').classList.remove('hidden');
+        }
+
+        // --- Web Audio Synthesizer ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+            if (type === 'spin') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(180, now);
+                osc.frequency.exponentialRampToValueAtTime(90, now + 0.12);
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.12);
+                osc.start(now);
+                osc.stop(now + 0.12);
+            } else if (type === 'step') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.exponentialRampToValueAtTime(220, now + 0.2);
+                gain.gain.setValueAtTime(0.18, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+                osc.start(now);
+                osc.stop(now + 0.2);
+            } else if (type === 'petal') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(900 + Math.random() * 400, now);
+                gain.gain.setValueAtTime(0.06, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                osc.start(now);
+                osc.stop(now + 0.08);
+            } else if (type === 'win') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, now); // D5
+                osc.frequency.setValueAtTime(739.99, now + 0.08); // F#5
+                osc.frequency.setValueAtTime(880.00, now + 0.16); // A5
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.38);
+                osc.start(now);
+                osc.stop(now + 0.38);
+            } else if (type === 'bigwin') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.exponentialRampToValueAtTime(1046.50, now + 0.5);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.7);
+                osc.start(now);
+                osc.stop(now + 0.7);
+            } else if (type === 'levelup') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.25);
+                osc.frequency.exponentialRampToValueAtTime(1320, now + 0.55);
+                gain.gain.setValueAtTime(0.35, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.75);
+                osc.start(now);
+                osc.stop(now + 0.75);
+            } else if (type === 'reveal') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(659.25, now); // E5
+                osc.frequency.exponentialRampToValueAtTime(987.77, now + 0.25); // B5
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            } else if (type === 'wheel-tick') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(320, now);
+                gain.gain.setValueAtTime(0.07, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+                osc.start(now);
+                osc.stop(now + 0.04);
+            }
+        }
+
+        // --- Persistent Bank Balance ---
+        let bank = parseInt(localStorage.getItem('pr_bank') || '10000', 10);
+        if (isNaN(bank) || bank <= 0) bank = 10000;
+
+        function setBank(val) {
+            bank = Math.max(0, val);
+            localStorage.setItem('pr_bank', bank);
+            document.getElementById('display-bank').textContent = bank.toLocaleString();
+        }
+
+        // --- Money Fill-Up / Petal Floating Effect ---
+        function animatePetalFly(amount, sourceElements) {
+            return new Promise(resolve => {
+                const target = document.getElementById('bank-container');
+                const targetRect = target.getBoundingClientRect();
+                const petalCount = Math.min(18, Math.max(6, Math.floor(amount / currentBet) * 2));
+                const targetX = targetRect.left + targetRect.width / 2;
+                const targetY = targetRect.top + targetRect.height / 2;
+
+                let completed = 0;
+                for (let i = 0; i < petalCount; i++) {
+                    const petal = document.createElement('div');
+                    petal.className = 'flying-petal';
+                    petal.textContent = ['🌸', '✨', '🌹', '🪻'][Math.floor(Math.random() * 4)];
+
+                    let startX = window.innerWidth / 2;
+                    let startY = window.innerHeight / 2;
+
+                    if (sourceElements && sourceElements.length > 0) {
+                        const randomSrc = sourceElements[Math.floor(Math.random() * sourceElements.length)];
+                        const srcRect = randomSrc.getBoundingClientRect();
+                        startX = srcRect.left + srcRect.width / 2;
+                        startY = srcRect.top + srcRect.height / 2;
+                    }
+
+                    startX += (Math.random() - 0.5) * 60;
+                    startY += (Math.random() - 0.5) * 60;
+
+                    petal.style.left = `${startX}px`;
+                    petal.style.top = `${startY}px`;
+                    document.body.appendChild(petal);
+
+                    setTimeout(() => {
+                        petal.style.transform = `translate(${targetX - startX}px, ${targetY - startY}px) scale(0.6)`;
+                        petal.style.opacity = '0.3';
+                    }, 50 + i * 45);
+
+                    setTimeout(() => {
+                        playSound('petal');
+                        petal.remove();
+                        target.classList.add('bg-pink-500/20');
+                        setTimeout(() => target.classList.remove('bg-pink-500/20'), 150);
+
+                        completed++;
+                        if (completed >= petalCount) resolve();
+                    }, 750 + i * 45);
+                }
+            });
+        }
+
+        // --- Cottagecore Level Progression Ranks ---
+        const RANK_TITLES = [
+            "GARDEN COTTAGE ROOKIE",    // Lvl 1
+            "ROSEBUD ENTHUSIAST",       // Lvl 2
+            "HERBAL TEACUP BREWER",     // Lvl 3
+            "COZY CROCHET WEAVER",      // Lvl 4
+            "VINTAGE BOOKWORM",         // Lvl 5
+            "COTTAGE BOTANIST",         // Lvl 6
+            "LAVENDER AROMA MISTRESS",  // Lvl 7
+            "WILDFLOWER CONNOISSEUR",   // Lvl 8
+            "MEADOWLAND CARETAKER",     // Lvl 9
+            "QUEEN OF CROCHET & THORNS",// Lvl 10
+            "SECRET GARDEN KEEPER",     // Lvl 11
+            "MASTER BOTANICAL ALCHEMIST",// Lvl 12
+            "CONSERVATORY ARISTOCRAT",  // Lvl 13
+            "ARCH-DRUIDESS OF THE ROSE",// Lvl 14
+            "MYTHIC COTTAGE OVERLORD"   // Lvl 15+
+        ];
+
+        let playerLevel = parseInt(localStorage.getItem('pr_level') || '1', 10);
+        let playerXP = parseInt(localStorage.getItem('pr_xp') || '0', 10);
+
+        function getXpNeeded(level) {
+            return level * 500;
+        }
+
+        function getRankTitle(level) {
+            const idx = Math.min(level - 1, RANK_TITLES.length - 1);
+            return RANK_TITLES[idx];
+        }
+
+        function updateXPDisplay() {
+            const needed = getXpNeeded(playerLevel);
+            const pct = Math.min(100, Math.floor((playerXP / needed) * 100));
+            document.getElementById('display-level').textContent = playerLevel;
+            document.getElementById('display-rank-title').textContent = getRankTitle(playerLevel);
+            document.getElementById('xp-bar').style.width = `${pct}%`;
+            document.getElementById('xp-text').textContent = `${playerXP.toLocaleString()} / ${needed.toLocaleString()} XP (Earn on 10X+ Wins)`;
+        }
+
+        function addXP(points) {
+            playerXP += points;
+            let leveledUp = false;
+
+            while (playerXP >= getXpNeeded(playerLevel)) {
+                playerXP -= getXpNeeded(playerLevel);
+                playerLevel += 1;
+                leveledUp = true;
+            }
+
+            localStorage.setItem('pr_level', playerLevel);
+            localStorage.setItem('pr_xp', playerXP);
+            updateXPDisplay();
+
+            return leveledUp;
+        }
+
+        function triggerLevelUpModal() {
+            return new Promise(resolve => {
+                playSound('levelup');
+                const bonusReward = playerLevel * 5000;
+                setBank(bank + bonusReward);
+
+                document.getElementById('levelup-num').textContent = playerLevel;
+                document.getElementById('levelup-title').textContent = getRankTitle(playerLevel);
+                document.getElementById('levelup-bonus-reward').textContent = `+${bonusReward.toLocaleString()} Credits`;
+
+                const modal = document.getElementById('modal-levelup');
+                modal.classList.remove('hidden');
+
+                const dismiss = () => {
+                    modal.classList.add('hidden');
+                    document.getElementById('btn-dismiss-levelup').removeEventListener('click', dismiss);
+                    resolve();
+                };
+                document.getElementById('btn-dismiss-levelup').addEventListener('click', dismiss);
+            });
+        }
+
+        // --- Themed Reel Symbols & Weights ---
+        const ROWS = 3;
+        const COLS = 5;
+        let currentBet = 100;
+        let isSpinning = false;
+        let activeFallingOrbs = [];
+
+        const SYMBOLS = [
+            { id: "TEACUP", icon: "☕", name: "Teacup", color: "text-amber-200", weight: 0.14 },
+            { id: "BOOK", icon: "📖", name: "Storybook", color: "text-purple-200", weight: 0.14 },
+            { id: "YARN", icon: "🧶", name: "Crochet Yarn", color: "text-pink-300", weight: 0.13 },
+            { id: "HONEY", icon: "🍯", name: "Honey Jar", color: "text-yellow-300", weight: 0.12 },
+            { id: "BASKET", icon: "🧺", name: "Flower Basket", color: "text-emerald-300", weight: 0.11 },
+            { id: "COTTAGE", icon: "🏡", name: "Cozy Cottage", color: "text-rose-300", weight: 0.10 },
+            { id: "WILD", icon: "🦋", name: "Butterfly Wild", color: "text-cyan-300 font-black", weight: 0.07 },
+            { id: "BONUS", icon: "🌹", name: "Purple Rose", color: "text-fuchsia-400 font-black", weight: 0.06 }
+        ];
+
+        const PAYTABLE = {
+            "TEACUP":  {3: 5,   4: 15,  5: 50},
+            "BOOK":    {3: 5,   4: 15,  5: 50},
+            "YARN":    {3: 8,   4: 25,  5: 75},
+            "HONEY":   {3: 10,  4: 35,  5: 100},
+            "BASKET":  {3: 15,  4: 50,  5: 150},
+            "COTTAGE": {3: 40,  4: 120, 5: 500},
+            "WILD":    {3: 60,  4: 250, 5: 1000}
+        };
+
+        const PAYLINES = [
+            [[1,0], [1,1], [1,2], [1,3], [1,4]],
+            [[0,0], [0,1], [0,2], [0,3], [0,4]],
+            [[2,0], [2,1], [2,2], [2,3], [2,4]],
+            [[0,0], [1,1], [2,2], [1,3], [0,4]],
+            [[2,0], [1,1], [0,2], [1,3], [2,4]]
+        ];
+
+        let baseGrid = Array(ROWS).fill(null).map(() => Array(COLS).fill(SYMBOLS[0]));
+
+        const reelsGridEl = document.getElementById('reels-grid');
+        const paylineCanvas = document.getElementById('payline-canvas');
+        const winDisplay = document.getElementById('display-win');
+        const btnSpin = document.getElementById('btn-spin');
+        const fallingBanner = document.getElementById('falling-banner');
+        const modalBigWin = document.getElementById('modal-big-win');
+
+        function formatCompact(num) {
+            if (num >= 1e9) return (num / 1e9).toFixed(num % 1e9 !== 0 ? 1 : 0) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(num % 1e6 !== 0 ? 1 : 0) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(num % 1e3 !== 0 ? 1 : 0) + 'K';
+            return num.toLocaleString();
+        }
+
+        function initGrid() {
+            reelsGridEl.innerHTML = '';
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const cell = document.createElement('div');
+                    cell.id = `cell-${r}-${c}`;
+                    cell.className = 'symbol-card bg-purple-950/60 border border-purple-800/40 rounded flex flex-col items-center justify-center text-sm sm:text-base font-bold shadow-inner relative overflow-hidden';
+                    reelsGridEl.appendChild(cell);
+                }
+            }
+            updateGridDisplay();
+            updateJackpots();
+            updateXPDisplay();
+            setBank(bank);
+        }
+
+        function updateJackpots() {
+            document.getElementById('jp-mini').textContent = formatCompact(currentBet * 15);
+            document.getElementById('jp-minor').textContent = formatCompact(currentBet * 50);
+            document.getElementById('jp-major').textContent = formatCompact(currentBet * 250);
+            document.getElementById('jp-grand').textContent = formatCompact(currentBet * 1000);
+            btnSpin.textContent = `SPIN (${formatCompact(currentBet)})`;
+        }
+
+        function getRandomSymbol() {
+            const r = Math.random();
+            let acc = 0;
+            for (const sym of SYMBOLS) {
+                acc += sym.weight;
+                if (r <= acc) return sym;
+            }
+            return SYMBOLS[0];
+        }
+
+        function updateGridDisplay() {
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const el = document.getElementById(`cell-${r}-${c}`);
+                    el.className = 'symbol-card bg-purple-950/60 border border-purple-800/40 rounded flex flex-col items-center justify-center text-sm sm:text-base font-bold relative overflow-hidden';
+
+                    const orb = activeFallingOrbs.find(o => o.r === r && o.c === c);
+                    if (orb) {
+                        el.className += ' blooming-wild bg-pink-950/80';
+                        el.innerHTML = `
+                            <span class="text-xs text-pink-300 font-extrabold tracking-tighter">WILD</span>
+                            <span class="text-xs sm:text-sm text-amber-200 truncate w-full text-center px-1">${orb.label}</span>
+                            <span class="text-[9px] text-pink-400">⬇ BLOOM</span>
+                        `;
+                    } else {
+                        const sym = baseGrid[r][c];
+                        el.innerHTML = `<span class="${sym.color} text-lg sm:text-2xl">${sym.icon}</span>`;
+                    }
+                }
+            }
+        }
+
+        async function runBaseSpin(isFreeCascade = false) {
+            if (isSpinning) return;
+            isSpinning = true;
+            btnSpin.disabled = true;
+            clearPaylines();
+
+            if (!isFreeCascade) {
+                if (bank < currentBet) {
+                    alert("Not enough credits! Please select a smaller bet.");
+                    isSpinning = false;
+                    btnSpin.disabled = false;
+                    return;
+                }
+                setBank(bank - currentBet);
+            }
+
+            playSound('spin');
+
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const el = document.getElementById(`cell-${r}-${c}`);
+                    if (!activeFallingOrbs.some(o => o.r === r && o.c === c)) {
+                        el.classList.add('rolling');
+                    }
+                }
+            }
+
+            await new Promise(res => setTimeout(res, 450));
+
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const el = document.getElementById(`cell-${r}-${c}`);
+                    el.classList.remove('rolling');
+
+                    if (!activeFallingOrbs.some(o => o.r === r && o.c === c)) {
+                        const sym = getRandomSymbol();
+                        baseGrid[r][c] = sym;
+                    }
+                }
+            }
+
+            // Walking Falling Wild bloom drop (~7% chance)
+            if (Math.random() < 0.07 && !isFreeCascade) {
+                const emptyCols = [0, 1, 2, 3, 4].filter(col => !activeFallingOrbs.some(o => o.c === col));
+                if (emptyCols.length > 0) {
+                    const pickCol = emptyCols[Math.floor(Math.random() * emptyCols.length)];
+                    activeFallingOrbs.push({
+                        r: 0,
+                        c: pickCol,
+                        value: currentBet * 3,
+                        label: `${formatCompact(currentBet * 3)}`
+                    });
+                }
+            }
+
+            updateGridDisplay();
+
+            // Line Win Evaluation
+            let totalSpinWin = 0;
+            const lineBet = Math.max(1, Math.floor(currentBet / PAYLINES.length));
+            const winningLines = [];
+
+            PAYLINES.forEach((line, index) => {
+                let target = null;
+                let count = 0;
+
+                for (let i = 0; i < line.length; i++) {
+                    const [r, c] = line[i];
+                    const isOrb = activeFallingOrbs.some(o => o.r === r && o.c === c);
+                    const symId = isOrb ? 'WILD' : baseGrid[r][c].id;
+
+                    if (symId === 'BONUS') break;
+
+                    if (target === null) {
+                        if (symId !== 'WILD') target = symId;
+                        count++;
+                    } else if (symId === target || symId === 'WILD') {
+                        count++;
+                    } else {
+                        break;
+                    }
+                }
+
+                if (target === null && count > 0) target = 'WILD';
+
+                if (count >= 3 && target && PAYTABLE[target]) {
+                    const mult = PAYTABLE[target][count] || 0;
+                    if (mult > 0) {
+                        const win = mult * lineBet;
+                        totalSpinWin += win;
+                        winningLines.push({ line, index, win });
+                    }
+                }
+            });
+
+            if (totalSpinWin > 0) {
+                drawPaylines(winningLines);
+                playSound('win');
+                winDisplay.textContent = totalSpinWin.toLocaleString();
+
+                const winElements = winningLines.flatMap(w => w.line.map(([r,c]) => document.getElementById(`cell-${r}-${c}`)));
+                await animatePetalFly(totalSpinWin, winElements);
+                setBank(bank + totalSpinWin);
+
+                if (totalSpinWin >= currentBet * 10) {
+                    await showBigWin(totalSpinWin);
+                }
+            } else {
+                winDisplay.textContent = '0';
+            }
+
+            // Scatter check for Purple Roses Bonus Game
+            const totalBonusScatters = baseGrid.flat().filter(s => s.id === 'BONUS').length;
+            if (totalBonusScatters >= 3) {
+                await new Promise(res => setTimeout(res, 500));
+                await startRoseGardenBonus();
+            }
+
+            // Walking Falling Wild Cascade
+            if (activeFallingOrbs.length > 0) {
+                fallingBanner.classList.remove('hidden');
+                await new Promise(res => setTimeout(res, 600));
+
+                playSound('step');
+                const remainingOrbs = [];
+                for (const orb of activeFallingOrbs) {
+                    await animatePetalFly(orb.value, [document.getElementById(`cell-${orb.r}-${orb.c}`)]);
+                    setBank(bank + orb.value);
+
+                    orb.r += 1;
+                    if (orb.r < ROWS) {
+                        remainingOrbs.push(orb);
+                    }
+                }
+                activeFallingOrbs = remainingOrbs;
+                updateGridDisplay();
+
+                if (activeFallingOrbs.length > 0) {
+                    isSpinning = false;
+                    runBaseSpin(true);
+                    return;
+                } else {
+                    fallingBanner.classList.add('hidden');
+                }
+            }
+
+            isSpinning = false;
+            btnSpin.disabled = false;
+        }
+
+        function clearPaylines() {
+            paylineCanvas.innerHTML = '';
+        }
+
+        function drawPaylines(lines) {
+            clearPaylines();
+            const colors = ['#f472b6', '#38bdf8', '#4ade80', '#c084fc', '#facc15'];
+            lines.forEach(({ line, index }) => {
+                const points = line.map(([r, c]) => {
+                    const el = document.getElementById(`cell-${r}-${c}`);
+                    const rect = el.getBoundingClientRect();
+                    const parentRect = reelsGridEl.getBoundingClientRect();
+                    return `${rect.left - parentRect.left + rect.width / 2},${rect.top - parentRect.top + rect.height / 2}`;
+                }).join(' ');
+
+                const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+                polyline.setAttribute('points', points);
+                polyline.setAttribute('fill', 'none');
+                polyline.setAttribute('stroke', colors[index % colors.length]);
+                polyline.setAttribute('stroke-width', '4');
+                polyline.setAttribute('stroke-linecap', 'round');
+                polyline.setAttribute('stroke-dasharray', '8 4');
+                paylineCanvas.appendChild(polyline);
+            });
+        }
+
+        function showBigWin(amount) {
+            return new Promise(async resolve => {
+                document.getElementById('slot-machine').classList.add('shake');
+                playSound('bigwin');
+
+                const multiplier = Math.floor(amount / currentBet);
+                let title = "LOVELY BLOOM!";
+                let xpGain = 100;
+
+                if (multiplier >= 50) {
+                    title = "LEGENDARY HARVEST!";
+                    xpGain = 1000;
+                } else if (multiplier >= 25) {
+                    title = "ROSE GARDEN SPLENDOR!";
+                    xpGain = 300;
+                }
+
+                document.getElementById('big-win-title').textContent = title;
+                document.getElementById('big-win-amount').textContent = amount.toLocaleString();
+                document.getElementById('big-win-multiplier').textContent = `${multiplier}X TOTAL BET`;
+                document.getElementById('big-win-xp').textContent = `+${xpGain.toLocaleString()} XP AWARDED!`;
+
+                modalBigWin.classList.remove('hidden');
+
+                const dismiss = async () => {
+                    modalBigWin.classList.add('hidden');
+                    document.getElementById('slot-machine').classList.remove('shake');
+                    document.getElementById('btn-dismiss-bigwin').removeEventListener('click', dismiss);
+
+                    const didLevelUp = addXP(xpGain);
+                    if (didLevelUp) {
+                        await triggerLevelUpModal();
+                    }
+                    resolve();
+                };
+                document.getElementById('btn-dismiss-bigwin').addEventListener('click', dismiss);
+            });
+        }
+
+        // --- BOTANICAL FORTUNE WHEEL ENGINE ---
+        const WHEEL_SEGMENTS = [
+            { label: "2X BOOST", type: "mult", val: 2, color: "#9333ea", textCol: "#f3e8ff" },
+            { label: "MINI",     type: "jp",   val: 15, color: "#d97706", textCol: "#fef3c7" },
+            { label: "3X BOOST", type: "mult", val: 3, color: "#7c3aed", textCol: "#f3e8ff" },
+            { label: "MINOR",    type: "jp",   val: 50, color: "#0284c7", textCol: "#e0f2fe" },
+            { label: "5X BOOST", type: "mult", val: 5, color: "#c026d3", textCol: "#fae8ff" },
+            { label: "MAJOR",    type: "jp",   val: 250, color: "#6b21a8", textCol: "#f3e8ff" },
+            { label: "10X BOOST",type: "mult", val: 10, color: "#db2777", textCol: "#fce7f3" },
+            { label: "GRAND",    type: "jp",   val: 1000, color: "#e11d48", textCol: "#ffe4e6" }
+        ];
+
+        let wheelCanvas = document.getElementById('wheel-canvas');
+        let wheelCtx = wheelCanvas.getContext('2d');
+        let currentWheelAngle = 0;
+        let isWheelSpinning = false;
+
+        function drawWheel(angle) {
+            const numSegs = WHEEL_SEGMENTS.length;
+            const arcSize = (2 * Math.PI) / numSegs;
+            const radius = wheelCanvas.width / 2;
+
+            wheelCtx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+
+            // Draw outer gold-leaf ring
+            wheelCtx.save();
+            wheelCtx.translate(radius, radius);
+            wheelCtx.beginPath();
+            wheelCtx.arc(0, 0, radius - 2, 0, 2 * Math.PI);
+            wheelCtx.fillStyle = '#4a044e';
+            wheelCtx.fill();
+            wheelCtx.lineWidth = 6;
+            wheelCtx.strokeStyle = '#f472b6';
+            wheelCtx.stroke();
+
+            // Rotate wheel
+            wheelCtx.rotate(angle);
+
+            for (let i = 0; i < numSegs; i++) {
+                const seg = WHEEL_SEGMENTS[i];
+                const startAngle = i * arcSize;
+                const endAngle = startAngle + arcSize;
+
+                wheelCtx.beginPath();
+                wheelCtx.moveTo(0, 0);
+                wheelCtx.arc(0, 0, radius - 8, startAngle, endAngle);
+                wheelCtx.fillStyle = seg.color;
+                wheelCtx.fill();
+                wheelCtx.lineWidth = 2;
+                wheelCtx.strokeStyle = '#fbcfe8';
+                wheelCtx.stroke();
+
+                // Draw Text
+                wheelCtx.save();
+                wheelCtx.rotate(startAngle + arcSize / 2);
+                wheelCtx.textAlign = 'right';
+                wheelCtx.fillStyle = seg.textCol;
+                wheelCtx.font = 'bold 13px Quicksand, sans-serif';
+                wheelCtx.fillText(seg.label, radius - 24, 5);
+                wheelCtx.restore();
+            }
+
+            wheelCtx.restore();
+        }
+
+        function triggerWheelBonus() {
+            return new Promise(resolve => {
+                const modal = document.getElementById('modal-wheel');
+                const btnSpinWheel = document.getElementById('btn-spin-wheel');
+                const resultText = document.getElementById('wheel-result');
+
+                modal.classList.remove('hidden');
+                btnSpinWheel.disabled = false;
+                resultText.textContent = "Spin the wheel to win jackpots & multipliers!";
+                drawWheel(currentWheelAngle);
+
+                btnSpinWheel.onclick = () => {
+                    if (isWheelSpinning) return;
+                    isWheelSpinning = true;
+                    btnSpinWheel.disabled = true;
+
+                    // Random landing angle (at least 5 full spins + offset)
+                    const extraRounds = 5 + Math.floor(Math.random() * 3);
+                    const targetSegIndex = Math.floor(Math.random() * WHEEL_SEGMENTS.length);
+                    const arcSize = (2 * Math.PI) / WHEEL_SEGMENTS.length;
+                    
+                    // The pointer is at TOP (3*PI / 2)
+                    // We calculate target angle so chosen segment lands under pointer
+                    const pointerAngle = 1.5 * Math.PI;
+                    const segmentCenter = targetSegIndex * arcSize + arcSize / 2;
+                    const finalAngle = extraRounds * 2 * Math.PI + (pointerAngle - segmentCenter);
+
+                    const duration = 4000;
+                    const startAngle = currentWheelAngle;
+                    const startTime = performance.now();
+                    let lastTick = 0;
+
+                    function animateWheel(time) {
+                        const elapsed = time - startTime;
+                        const progress = Math.min(1, elapsed / duration);
+                        // Ease out cubic
+                        const easeOut = 1 - Math.pow(1 - progress, 3);
+                        const cur = startAngle + (finalAngle - startAngle) * easeOut;
+
+                        drawWheel(cur);
+
+                        // Sound tick on segment cross
+                        if (Math.floor(cur / (arcSize / 1.5)) !== lastTick) {
+                            playSound('wheel-tick');
+                            lastTick = Math.floor(cur / (arcSize / 1.5));
+                        }
+
+                        if (progress < 1) {
+                            requestAnimationFrame(animateWheel);
+                        } else {
+                            currentWheelAngle = cur % (2 * Math.PI);
+                            const wonSeg = WHEEL_SEGMENTS[targetSegIndex];
+                            playSound('win');
+                            
+                            if (wonSeg.type === "jp") {
+                                const jpPayout = currentBet * wonSeg.val;
+                                resultText.textContent = `★ ${wonSeg.label} JACKPOT! +${jpPayout.toLocaleString()} credits!`;
+                            } else {
+                                resultText.textContent = `✨ ${wonSeg.label} AWARDED TO YOUR GARDEN!`;
+                            }
+
+                            setTimeout(() => {
+                                modal.classList.add('hidden');
+                                isWheelSpinning = false;
+                                resolve(wonSeg);
+                            }, 1800);
+                        }
+                    }
+                    requestAnimationFrame(animateWheel);
+                };
+            });
+        }
+
+        // --- THE SECRET ROSE GARDEN PICK-AND-WIN ENGINE ---
+        let gardenPicks = 3;
+        let gardenWin = 0;
+        let gardenMultiplier = 1;
+        let gardenCards = [];
+
+        function generateCardReward() {
+            const r = Math.random();
+            // Wheel spin trigger chance (6%)
+            if (r < 0.06) {
+                return { type: 'WHEEL', label: '🎡 WHEEL', desc: 'WHEEL SPIN!' };
+            }
+            // Jackpots
+            if (r < 0.07) return { type: 'GRAND', label: 'GRAND', val: currentBet * 1000, desc: '1000X GRAND!' };
+            if (r < 0.09) return { type: 'MAJOR', label: 'MAJOR', val: currentBet * 250, desc: '250X MAJOR!' };
+            if (r < 0.13) return { type: 'MINOR', label: 'MINOR', val: currentBet * 50, desc: '50X MINOR!' };
+            if (r < 0.19) return { type: 'MINI', label: 'MINI', val: currentBet * 15, desc: '15X MINI!' };
+
+            // Extra Picks (+1 or +2)
+            if (r < 0.28) {
+                const add = Math.random() < 0.75 ? 1 : 2;
+                return { type: 'PICKS', label: `+${add} PICKS`, val: add, desc: `+${add} EXTRA PICKS!` };
+            }
+
+            // Global Win Multipliers
+            if (r < 0.40) {
+                const mult = Math.random() < 0.7 ? 2 : 3;
+                return { type: 'MULT', label: `x${mult} MULT`, val: mult, desc: `${mult}X GARDEN BOOST!` };
+            }
+
+            // Direct Credit Values
+            const betMults = [2, 3, 5, 8, 10, 15];
+            const chosen = betMults[Math.floor(Math.random() * betMults.length)];
+            return { type: 'CREDIT', label: `${formatCompact(currentBet * chosen)}`, val: currentBet * chosen, desc: `+${formatCompact(currentBet * chosen)} CREDITS` };
+        }
+
+        function startRoseGardenBonus() {
+            return new Promise(resolve => {
+                const modal = document.getElementById('modal-bonus');
+                modal.classList.remove('hidden');
+
+                gardenPicks = 3;
+                gardenWin = 0;
+                gardenMultiplier = 1;
+                document.getElementById('bonus-picks').textContent = gardenPicks;
+                document.getElementById('bonus-win-total').textContent = gardenWin.toLocaleString();
+                document.getElementById('bonus-multiplier').textContent = `${gardenMultiplier}X`;
+                document.getElementById('bonus-status-msg').textContent = "Choose carefully among the conservatory roses...";
+                document.getElementById('btn-bonus-collect').classList.add('hidden');
+
+                // Generate 15 Rose Cards
+                gardenCards = [];
+                for (let i = 0; i < 15; i++) {
+                    gardenCards.push({
+                        id: i,
+                        reward: generateCardReward(),
+                        revealed: false
+                    });
+                }
+
+                renderGardenGrid();
+
+                async function onRosePicked(cardIndex) {
+                    const card = gardenCards[cardIndex];
+                    if (card.revealed || gardenPicks <= 0) return;
+
+                    card.revealed = true;
+                    gardenPicks--;
+                    playSound('reveal');
+
+                    const rew = card.reward;
+                    const statusMsg = document.getElementById('bonus-status-msg');
+
+                    if (rew.type === 'WHEEL') {
+                        statusMsg.textContent = "🎡 BOTANICAL FORTUNE WHEEL TRIGGERED!";
+                        // Flip visual before launching wheel
+                        renderGardenGrid();
+                        await new Promise(r => setTimeout(r, 600));
+                        
+                        const wheelPrize = await triggerWheelBonus();
+                        if (wheelPrize.type === 'jp') {
+                            gardenWin += currentBet * wheelPrize.val;
+                        } else if (wheelPrize.type === 'mult') {
+                            gardenMultiplier *= wheelPrize.val;
+                        }
+                    } else if (rew.type === 'CREDIT' || rew.type === 'MINI' || rew.type === 'MINOR' || rew.type === 'MAJOR' || rew.type === 'GRAND') {
+                        gardenWin += rew.val;
+                        statusMsg.textContent = `Revealed ${rew.desc}`;
+                    } else if (rew.type === 'PICKS') {
+                        gardenPicks += rew.val;
+                        statusMsg.textContent = `Fortunate find: ${rew.desc}`;
+                    } else if (rew.type === 'MULT') {
+                        gardenMultiplier *= rew.val;
+                        statusMsg.textContent = `Enchanted scent: ${rew.desc}`;
+                    }
+
+                    document.getElementById('bonus-picks').textContent = gardenPicks;
+                    document.getElementById('bonus-win-total').textContent = (gardenWin * gardenMultiplier).toLocaleString();
+                    document.getElementById('bonus-multiplier').textContent = `${gardenMultiplier}X`;
+
+                    renderGardenGrid();
+
+                    // Check if picks ran out or all 15 picked
+                    if (gardenPicks <= 0 || gardenCards.every(c => c.revealed)) {
+                        statusMsg.textContent = "All rose petals gathered! Collect your botanical winnings.";
+                        // Reveal all remaining unpicked cards dimmed
+                        gardenCards.forEach(c => c.revealed = true);
+                        renderGardenGrid(true);
+
+                        const btnCollect = document.getElementById('btn-bonus-collect');
+                        btnCollect.classList.remove('hidden');
+
+                        btnCollect.onclick = async () => {
+                            btnCollect.classList.add('hidden');
+                            const finalBonusWin = gardenWin * gardenMultiplier;
+
+                            await animatePetalFly(finalBonusWin, []);
+                            setBank(bank + finalBonusWin);
+
+                            modal.classList.add('hidden');
+                            if (finalBonusWin >= currentBet * 10) {
+                                await showBigWin(finalBonusWin);
+                            }
+                            resolve();
+                        };
+                    }
+                }
+
+                function renderGardenGrid(showAll = false) {
+                    const gridEl = document.getElementById('garden-grid');
+                    gridEl.innerHTML = '';
+
+                    gardenCards.forEach((c, idx) => {
+                        const cardContainer = document.createElement('div');
+                        cardContainer.className = 'rose-card aspect-[4/5] cursor-pointer';
+
+                        const inner = document.createElement('div');
+                        inner.className = `rose-inner w-full h-full relative rounded-lg border shadow-md ${c.revealed ? 'flipped' : ''}`;
+
+                        // Back side (Unopened rose bud - numbers removed)
+                        const backSide = document.createElement('div');
+                        backSide.className = 'rose-front absolute inset-0 bg-gradient-to-b from-purple-900/90 to-purple-950/90 border border-purple-700/60 rounded-lg flex flex-col items-center justify-center hover:border-pink-400 transition hover:scale-105';
+                        backSide.innerHTML = `
+                            <span class="text-3xl sm:text-4xl filter drop-shadow">🥀</span>
+                            <span class="text-[10px] text-pink-300 font-bold mt-1 tracking-wider uppercase">Pick</span>
+                        `;
+
+                        // Front side (Revealed flower & prize)
+                        const frontSide = document.createElement('div');
+                        frontSide.className = 'rose-back absolute inset-0 rounded-lg flex flex-col items-center justify-center p-1 text-center font-bold';
+
+                        const rew = c.reward;
+                        if (rew.type === 'WHEEL') {
+                            frontSide.className += ' bg-amber-950/90 border border-amber-400 text-amber-300 shadow-[0_0_12px_#f59e0b]';
+                            frontSide.innerHTML = `<span class="text-2xl sm:text-3xl">🎡</span><span class="text-[10px] font-black tracking-tight">WHEEL</span>`;
+                        } else if (rew.type === 'GRAND') {
+                            frontSide.className += ' bg-pink-950/90 border border-pink-400 text-pink-300 shadow-[0_0_14px_#f472b6] animate-pulse';
+                            frontSide.innerHTML = `<span class="text-2xl">🌹</span><span class="text-[9px] font-black">GRAND</span><span class="text-[8px]">${formatCompact(rew.val)}</span>`;
+                        } else if (rew.type === 'MAJOR') {
+                            frontSide.className += ' bg-purple-900/90 border border-purple-400 text-purple-200';
+                            frontSide.innerHTML = `<span class="text-xl">🪻</span><span class="text-[9px]">MAJOR</span><span class="text-[8px]">${formatCompact(rew.val)}</span>`;
+                        } else if (rew.type === 'MINOR') {
+                            frontSide.className += ' bg-blue-950/90 border border-blue-400 text-blue-200';
+                            frontSide.innerHTML = `<span class="text-xl">🪻</span><span class="text-[9px]">MINOR</span><span class="text-[8px]">${formatCompact(rew.val)}</span>`;
+                        } else if (rew.type === 'MINI') {
+                            frontSide.className += ' bg-amber-950/90 border border-amber-400 text-amber-200';
+                            frontSide.innerHTML = `<span class="text-xl">🪻</span><span class="text-[9px]">MINI</span><span class="text-[8px]">${formatCompact(rew.val)}</span>`;
+                        } else if (rew.type === 'PICKS') {
+                            frontSide.className += ' bg-emerald-950/90 border border-emerald-400 text-emerald-300';
+                            frontSide.innerHTML = `<span class="text-xl">🌱</span><span class="text-[10px]">${rew.label}</span>`;
+                        } else if (rew.type === 'MULT') {
+                            frontSide.className += ' bg-fuchsia-950/90 border border-fuchsia-400 text-fuchsia-300';
+                            frontSide.innerHTML = `<span class="text-xl">✨</span><span class="text-[10px]">${rew.label}</span>`;
+                        } else {
+                            frontSide.className += ' bg-purple-950/90 border border-purple-600 text-amber-200';
+                            frontSide.innerHTML = `<span class="text-xl">🌸</span><span class="text-[10px] font-black">${rew.label}</span>`;
+                        }
+
+                        if (showAll && !c.revealed) {
+                            cardContainer.classList.add('opacity-40');
+                        }
+
+                        inner.appendChild(backSide);
+                        inner.appendChild(frontSide);
+                        cardContainer.appendChild(inner);
+
+                        cardContainer.addEventListener('click', () => onRosePicked(idx));
+                        gridEl.appendChild(cardContainer);
+                    });
+                }
+            });
+        }
+
+        // --- Event Listeners ---
+        btnSpin.addEventListener('click', () => runBaseSpin(false));
+
+        const INACTIVE_BET_CLASSES = ['bg-purple-900/60', 'text-purple-200', 'border-purple-800'];
+        const ACTIVE_BET_CLASSES   = ['bg-pink-600', 'text-purple-950', 'border-pink-400'];
+
+        document.querySelectorAll('.bet-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (isSpinning) return;
+
+                document.querySelectorAll('.bet-btn').forEach(b => {
+                    b.classList.remove(...ACTIVE_BET_CLASSES);
+                    b.classList.add(...INACTIVE_BET_CLASSES);
+                });
+
+                btn.classList.remove(...INACTIVE_BET_CLASSES);
+                btn.classList.add(...ACTIVE_BET_CLASSES);
+
+                currentBet = parseInt(btn.dataset.bet, 10);
+                updateJackpots();
+            });
+        });
+
+        // Developer Test Buttons
+        document.getElementById('btn-test-orb').addEventListener('click', () => {
+            if (isSpinning) return;
+            activeFallingOrbs = [{
+                r: 0,
+                c: 2,
+                value: currentBet * 5,
+                label: `${formatCompact(currentBet * 5)}`
+            }];
+            updateGridDisplay();
+            runBaseSpin(true);
+        });
+
+        document.getElementById('btn-test-bonus').addEventListener('click', () => {
+            if (isSpinning) return;
+            startRoseGardenBonus();
+        });
+
+        document.getElementById('btn-test-wheel').addEventListener('click', async () => {
+            if (isSpinning) return;
+            const res = await triggerWheelBonus();
+            if (res.type === 'jp') {
+                setBank(bank + currentBet * res.val);
+            }
+        });
+
+        initGrid();
+    </script>
+</body>
+</html>
