@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Legend of the Golden Llama</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Quicksand:wght@600;700&display=swap');
+        
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: radial-gradient(circle at 50% 15%, #1b3322 0%, #0d1a11 55%, #050a06 100%);
+            color: #fef9c3;
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        .cinzel-font {
+            font-family: 'Cinzel', serif;
+        }
+
+        .inca-border {
+            border: 2px solid #eab308;
+            box-shadow: 0 0 20px rgba(234, 179, 8, 0.3), inset 0 0 15px rgba(234, 179, 8, 0.1);
+        }
+
+        .symbol-card {
+            transition: transform 0.2s ease-out, filter 0.2s ease;
+        }
+
+        .golden-llama-card {
+            box-shadow: 0 0 18px #facc15, inset 0 0 12px #ca8a04;
+            border: 2px solid #fef08a;
+            animation: llamaGlow 1.2s infinite alternate ease-in-out;
+        }
+
+        @keyframes llamaGlow {
+            0% { transform: scale(0.97); filter: drop-shadow(0 0 4px #eab308); }
+            100% { transform: scale(1.03); filter: drop-shadow(0 0 14px #facc15); }
+        }
+
+        .shake {
+            animation: screenShake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes screenShake {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(3px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+            40%, 60% { transform: translate3d(5px, 0, 0); }
+        }
+
+        .rolling {
+            animation: rollBlur 0.14s infinite linear;
+        }
+
+        @keyframes rollBlur {
+            0% { transform: translateY(-12px); filter: blur(3px); opacity: 0.55; }
+            50% { transform: translateY(12px); filter: blur(3px); opacity: 0.85; }
+            100% { transform: translateY(-12px); filter: blur(3px); opacity: 0.55; }
+        }
+
+        .flying-coin {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            font-size: 1.4rem;
+            filter: drop-shadow(0 0 8px #fde047);
+            transition: transform 0.75s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.75s ease-in;
+        }
+
+        .pack-llama {
+            transition: transform 0.25s ease, filter 0.25s ease;
+        }
+        .pack-llama.swelling {
+            transform: scale(1.18);
+            filter: drop-shadow(0 0 12px #facc15);
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-between p-2 sm:p-4 text-xs sm:text-sm">
+
+    <!-- Version Badge -->
+    <div class="fixed bottom-1 right-2 text-[9px] text-emerald-500/50 font-mono select-none pointer-events-none z-50">
+        v1.0.0 - Golden Llama
+    </div>
+
+    <!-- Header Navigation & Jackpots -->
+    <header class="w-full max-w-5xl flex flex-col items-center gap-2">
+        <div class="flex items-center justify-between w-full border-b border-emerald-800/50 pb-2 px-2 flex-wrap gap-2">
+            <div class="flex items-center gap-2">
+                <a href="../index.html" class="bg-emerald-950/80 hover:bg-emerald-900 text-emerald-200 border border-emerald-700 text-xs px-2.5 py-1 rounded shadow transition flex items-center gap-1 font-bold">
+                    ⬅ LOBBY
+                </a>
+                <span class="text-2xl">🦙</span>
+                <h1 class="text-lg sm:text-2xl font-black text-amber-300 tracking-wider cinzel-font">LEGEND OF THE GOLDEN LLAMA</h1>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <button id="btn-open-rules" class="bg-emerald-950/80 hover:bg-emerald-900 text-amber-300 border border-emerald-700 text-xs px-2.5 py-1 rounded shadow transition font-bold">
+                    📜 RULES
+                </button>
+                <button id="btn-open-feedback" class="bg-emerald-950/80 hover:bg-emerald-900 text-amber-300 border border-emerald-700 text-xs px-2.5 py-1 rounded shadow transition font-bold">
+                    💬 FEEDBACK
+                </button>
+
+                <div id="dev-controls" class="hidden flex gap-1.5 flex-wrap">
+                    <button id="btn-test-pack" class="bg-amber-900/80 hover:bg-amber-800 text-amber-200 border border-amber-500 text-xs px-2 py-1 rounded shadow transition">
+                        🦙 TEST BONUS
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Universal Level Progress Bar -->
+        <div class="w-full bg-emerald-950/60 border border-emerald-800/40 rounded-lg p-2 flex items-center justify-between gap-3 shadow-inner">
+            <div class="flex items-center gap-2">
+                <span class="bg-gradient-to-r from-amber-500 to-yellow-400 text-stone-950 font-black px-2.5 py-0.5 rounded text-xs tracking-wider">LEVEL <span id="display-level">1</span></span>
+                <span class="text-[11px] text-amber-300 font-bold tracking-wide cinzel-font" id="display-rank-title">APPRENTICE WARRIOR</span>
+            </div>
+            <div class="flex-1 max-w-xs flex flex-col items-end">
+                <div class="w-full bg-stone-950 rounded-full h-2.5 border border-emerald-800/40 overflow-hidden">
+                    <div id="xp-bar" class="bg-gradient-to-r from-emerald-500 via-amber-400 to-yellow-300 h-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <span class="text-[10px] text-emerald-300/80 mt-0.5" id="xp-text">0 / 500 XP (Earn on 10X+ Wins)</span>
+            </div>
+        </div>
+
+        <!-- Tiered Jackpots -->
+        <div class="grid grid-cols-4 gap-2 w-full text-center">
+            <div class="bg-emerald-950/50 border border-emerald-800/60 rounded p-1 sm:p-2">
+                <div class="text-[10px] text-amber-300 font-bold">MINI (15x)</div>
+                <div id="jp-mini" class="text-amber-200 font-bold text-xs sm:text-base truncate">1,500</div>
+            </div>
+            <div class="bg-emerald-950/50 border border-emerald-800/60 rounded p-1 sm:p-2">
+                <div class="text-[10px] text-blue-300 font-bold">MINOR (50x)</div>
+                <div id="jp-minor" class="text-blue-200 font-bold text-xs sm:text-base truncate">5,000</div>
+            </div>
+            <div class="bg-emerald-950/50 border border-emerald-800/60 rounded p-1 sm:p-2">
+                <div class="text-[10px] text-purple-300 font-bold">MAJOR (250x)</div>
+                <div id="jp-major" class="text-purple-200 font-bold text-xs sm:text-base truncate">25,000</div>
+            </div>
+            <div class="bg-emerald-950/50 border border-amber-500/70 rounded p-1 sm:p-2 shadow-[0_0_12px_rgba(234,179,8,0.25)]">
+                <div class="text-[10px] text-yellow-300 font-bold">GRAND (1000x)</div>
+                <div id="jp-grand" class="text-yellow-200 font-black text-xs sm:text-base animate-pulse truncate">100,000</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Game Board with Side Pack Llamas -->
+    <main class="w-full max-w-5xl my-2 flex flex-col md:flex-row items-center gap-3">
+        
+        <!-- The 3 Pack-Mule Llamas (Side Pots) -->
+        <div class="w-full md:w-44 flex md:flex-col justify-around gap-2 bg-emerald-950/60 border border-emerald-800/50 rounded-xl p-2.5 shadow-lg">
+            
+            <!-- 1. Extra Wilds Llama (Emerald Pack) -->
+            <div id="pack-wilds" class="pack-llama flex-1 flex flex-col items-center bg-stone-900/80 border border-emerald-500/60 rounded-lg p-2 text-center relative overflow-hidden">
+                <div class="text-[9px] font-black text-emerald-400 uppercase tracking-tighter">EXTRA WILDS</div>
+                <div class="text-3xl my-1 relative">
+                    🦙
+                    <span id="pack-badge-wilds" class="absolute -bottom-1 -right-1 text-xs">🎒</span>
+                </div>
+                <div class="w-full bg-stone-950 rounded-full h-1.5 mt-1 border border-emerald-800">
+                    <div id="fill-wilds" class="bg-emerald-500 h-full rounded-full transition-all duration-300" style="width: 20%"></div>
+                </div>
+                <span id="label-wilds" class="text-[8px] text-emerald-300 font-bold mt-0.5">READY</span>
+            </div>
+
+            <!-- 2. Jackpots Llama (Gold Pack) -->
+            <div id="pack-jackpots" class="pack-llama flex-1 flex flex-col items-center bg-stone-900/80 border border-amber-500/60 rounded-lg p-2 text-center relative overflow-hidden">
+                <div class="text-[9px] font-black text-amber-400 uppercase tracking-tighter">JACKPOTS</div>
+                <div class="text-3xl my-1 relative">
+                    🦙
+                    <span id="pack-badge-jackpots" class="absolute -bottom-1 -right-1 text-xs">💰</span>
+                </div>
+                <div class="w-full bg-stone-950 rounded-full h-1.5 mt-1 border border-amber-800">
+                    <div id="fill-jackpots" class="bg-amber-400 h-full rounded-full transition-all duration-300" style="width: 25%"></div>
+                </div>
+                <span id="label-jackpots" class="text-[8px] text-amber-300 font-bold mt-0.5">READY</span>
+            </div>
+
+            <!-- 3. Multiplier Llama (Terracotta/Red Pack) -->
+            <div id="pack-mult" class="pack-llama flex-1 flex flex-col items-center bg-stone-900/80 border border-red-500/60 rounded-lg p-2 text-center relative overflow-hidden">
+                <div class="text-[9px] font-black text-rose-400 uppercase tracking-tighter">MULTIPLIERS</div>
+                <div class="text-3xl my-1 relative">
+                    🦙
+                    <span id="pack-badge-mult" class="absolute -bottom-1 -right-1 text-xs">🔥</span>
+                </div>
+                <div class="w-full bg-stone-950 rounded-full h-1.5 mt-1 border border-red-800">
+                    <div id="fill-mult" class="bg-rose-500 h-full rounded-full transition-all duration-300" style="width: 15%"></div>
+                </div>
+                <span id="label-mult" class="text-[8px] text-rose-300 font-bold mt-0.5">READY</span>
+            </div>
+
+        </div>
+
+        <!-- 5x3 Reel Matrix Area -->
+        <div id="slot-machine" class="relative flex-1 w-full bg-stone-950/80 inca-border rounded-xl p-3 sm:p-4 flex flex-col items-center backdrop-blur-sm">
+            <svg id="payline-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></svg>
+            <div id="reels-grid" class="grid grid-cols-5 gap-1.5 sm:gap-2.5 w-full aspect-[5/3] max-h-[440px]"></div>
+            
+            <div id="bonus-banner" class="hidden mt-2 text-center text-amber-300 font-bold text-xs sm:text-sm animate-pulse tracking-wide">
+                🌟 FREE SPINS BONUS ACTIVE! 🌟
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Console Controls -->
+    <footer class="w-full max-w-5xl bg-emerald-950/80 border-t border-emerald-800/40 p-2 sm:p-3 rounded-t-xl flex flex-col gap-2.5 backdrop-blur-md">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-4">
+                <div id="bank-container" class="relative p-1 rounded transition-colors duration-300">
+                    <div class="text-[10px] text-emerald-300/70 uppercase tracking-widest">Bank Balance</div>
+                    <div id="display-bank" class="text-xl sm:text-2xl font-black text-amber-300 transition-all duration-300">10,000</div>
+                </div>
+                <div class="border-l border-emerald-800/60 pl-4">
+                    <div class="text-[10px] text-emerald-300/70 uppercase tracking-widest">Last Win</div>
+                    <div id="display-win" class="text-lg sm:text-xl font-bold text-emerald-300">0</div>
+                </div>
+            </div>
+
+            <button id="btn-spin" class="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 hover:from-amber-400 hover:to-yellow-300 text-stone-950 font-black text-base sm:text-lg rounded-lg shadow-[0_0_20px_rgba(234,179,8,0.5)] transition active:scale-95 disabled:opacity-50 disabled:pointer-events-none">
+                SPIN (100)
+            </button>
+        </div>
+
+        <!-- Bet Tiers (1 to 1B) -->
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+            <span class="text-xs text-emerald-300 font-bold mr-1 shrink-0">BET:</span>
+            <div class="inline-flex rounded-md shadow-sm shrink-0 gap-1">
+                <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-emerald-900/60 border border-emerald-800 text-emerald-200 rounded hover:bg-emerald-800 transition active:scale-95" data-bet="1">1</button>
+                <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-emerald-900/60 border border-emerald-800 text-emerald-200 rounded hover:bg-emerald-800 transition active:scale-95" data-bet="10">10</button>
+                <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-amber-500 border border-yellow-300 text-stone-950 rounded hover:bg-amber-400 transition active:scale-95" data-bet="100">100</button>
+                <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-emerald-900/60 border border-emerald-800 text-emerald-200 rounded hover:bg-emerald-800 transition active:scale-95" data-bet="1000">1K</button>
+                <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-emerald-900/60 border border-emerald-800 text-emerald-200 rounded hover:bg-emerald-800 transition active:scale-95" data-bet="100000">100K</button>
+                <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-emerald-900/60 border border-emerald-800 text-emerald-200 rounded hover:bg-emerald-800 transition active:scale-95" data-bet="500000">500K</button>
+                <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-emerald-900/60 border border-emerald-800 text-emerald-200 rounded hover:bg-emerald-800 transition active:scale-95" data-bet="1000000">1M</button>
+                <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-emerald-900/60 border border-emerald-800 text-emerald-200 rounded hover:bg-emerald-800 transition active:scale-95" data-bet="5000000">5M</button>
+                <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-emerald-900/60 border border-emerald-800 text-emerald-200 rounded hover:bg-emerald-800 transition active:scale-95" data-bet="10000000">10M</button>
+                <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-emerald-900/60 border border-emerald-800 text-emerald-200 rounded hover:bg-emerald-800 transition active:scale-95" data-bet="100000000">100M</button>
+                <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-emerald-900/60 border border-emerald-800 text-emerald-200 rounded hover:bg-emerald-800 transition active:scale-95" data-bet="1000000000">1B</button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- RULES MODAL -->
+    <div id="modal-rules" class="fixed inset-0 bg-black/85 flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-stone-900 border-2 border-amber-500 rounded-2xl max-w-lg w-full p-5 max-h-[85vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-emerald-800/60 pb-2 mb-3">
+                <h3 class="text-lg font-black text-amber-400 cinzel-font">THE LEGEND OF THE GOLDEN LLAMA RULES</h3>
+                <button id="btn-close-rules" class="text-stone-400 hover:text-white font-bold text-lg">✕</button>
+            </div>
+            <div class="space-y-3 text-xs text-stone-300 leading-relaxed">
+                <div>
+                    <h4 class="font-bold text-amber-300">SYMBOLS & PAYLINES:</h4>
+                    <p>Pays left to right across 5 lines. Symbols include Andean Flutes (🪈), Ponchos (🧣), Sun Tablets (☀️), Golden Idols (🗿), and Fluffy Alpacas (🦙).</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-amber-300">GOLDEN LLAMA SCATTERS (✨🦙✨):</h4>
+                    <p>Substitutes as Wild and feeds coins into the 3 Pack-Mule Llamas on the side.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-amber-300">THE 3 PACK-MULE POT BONUSES:</h4>
+                    <p>Each Golden Llama has a chance to burst open one or more of the pack bags:</p>
+                    <ul class="list-disc ml-5 mt-1 space-y-1">
+                        <li><strong>Extra Wilds Llama:</strong> Awards 8 Free Spins with roaming Golden Wilds stamped across the reels on every spin.</li>
+                        <li><strong>Jackpots Llama:</strong> Awards 8 Free Spins where Golden Llamas drop Mini, Minor, Major, or Grand Jackpot coins!</li>
+                        <li><strong>Multiplier Llama:</strong> Awards 8 Free Spins with an active 2X, 3X, or 5X global multiplier on all payouts.</li>
+                        <li><strong>Combo Super Bonus:</strong> If 2 or 3 packs burst at the same time, all their perks combine!</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-amber-300">FREE SPIN RETRIGGERS:</h4>
+                    <p>During Free Spins, landing <strong>2 or more Golden Llamas</strong> on a spin awards <strong>+3 Additional Free Spins</strong>!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FEEDBACK MODAL -->
+    <div id="modal-feedback" class="fixed inset-0 bg-black/85 flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-stone-900 border-2 border-amber-500 rounded-2xl max-w-sm w-full p-5 text-center">
+            <h3 class="text-lg font-black text-amber-400 cinzel-font mb-2">LLAMA FEEDBACK</h3>
+            <p class="text-xs text-stone-300 mb-3">Send thoughts, suggestions, or feature requests:</p>
+            <textarea id="feedback-input" class="w-full bg-stone-950 border border-stone-700 rounded p-2 text-xs text-stone-200 resize-none h-24 mb-3 focus:outline-none focus:border-amber-400" placeholder="Type here..."></textarea>
+            <div class="flex justify-end gap-2">
+                <button id="btn-cancel-feedback" class="px-3 py-1.5 bg-stone-800 text-stone-300 rounded font-bold hover:bg-stone-700">Cancel</button>
+                <button id="btn-send-feedback" class="px-4 py-1.5 bg-amber-500 text-stone-950 rounded font-black hover:bg-amber-400">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BIG WIN OVERLAY -->
+    <div id="modal-big-win" class="fixed inset-0 bg-black/85 flex items-center justify-center hidden z-50">
+        <div class="text-center p-6 bg-stone-900 border-4 border-amber-500 rounded-2xl shadow-[0_0_60px_#eab308] max-w-sm w-full mx-4">
+            <h2 id="big-win-title" class="text-3xl sm:text-4xl font-black text-amber-400 cinzel-font animate-bounce">SACRED TREASURE!</h2>
+            <div id="big-win-amount" class="text-3xl sm:text-4xl font-black text-yellow-300 my-4 break-words">0</div>
+            <p id="big-win-multiplier" class="text-sm font-bold text-stone-400 uppercase tracking-widest mb-2">15X TOTAL BET</p>
+            <div id="big-win-xp" class="text-amber-300 font-black text-base mb-4 bg-amber-950/80 border border-amber-600 rounded py-1 px-3 inline-block">+100 XP AWARDED!</div>
+            <div>
+                <button id="btn-dismiss-bigwin" class="px-6 py-2 bg-amber-500 text-stone-950 font-bold rounded-lg hover:bg-amber-400 transition">COLLECT TREASURE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LEVEL UP CELEBRATION MODAL -->
+    <div id="modal-levelup" class="fixed inset-0 bg-black/90 flex items-center justify-center hidden z-50">
+        <div class="text-center p-6 bg-gradient-to-b from-stone-900 to-stone-950 border-4 border-yellow-500 rounded-2xl shadow-[0_0_80px_#ffd700] max-w-sm w-full mx-4">
+            <div class="text-amber-400 text-4xl mb-2">🦙</div>
+            <h2 class="text-3xl font-black text-yellow-400 cinzel-font animate-pulse">RANK ADVANCEMENT!</h2>
+            <div class="text-xl font-black text-stone-200 mt-2">REACHED LEVEL <span id="levelup-num" class="text-amber-400">2</span></div>
+            <div id="levelup-title" class="text-sm font-bold text-amber-300 mt-1 mb-4 cinzel-font">GLADIATOR</div>
+            <div class="bg-amber-950/70 border border-amber-600/80 rounded-lg p-3 mb-5 text-xs text-amber-200">
+                <span>Temple Gift Granted:</span>
+                <div id="levelup-bonus-reward" class="text-lg font-black text-emerald-400 mt-1">+10,000 Credits</div>
+            </div>
+            <button id="btn-dismiss-levelup" class="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-400 text-stone-950 font-black rounded-lg hover:from-amber-400 hover:to-yellow-300 transition shadow">CONTINUE ASCENT</button>
+        </div>
+    </div>
+
+    <!-- FREE SPINS SUMMARY / RETRIGGER BANNER -->
+    <div id="modal-bonus-summary" class="fixed inset-0 bg-black/90 flex items-center justify-center hidden z-50">
+        <div class="text-center p-6 bg-stone-900 border-4 border-amber-500 rounded-2xl shadow-[0_0_70px_#eab308] max-w-sm w-full mx-4">
+            <div class="text-5xl mb-2">🎉</div>
+            <h3 class="text-2xl font-black text-amber-400 cinzel-font">BONUS COMPLETE!</h3>
+            <p class="text-xs text-stone-300 mt-1">The Golden Llamas have bestowed their fortune:</p>
+            <div id="bonus-total-win" class="text-4xl font-black text-yellow-300 my-4">0</div>
+            <button id="btn-collect-bonus" class="px-8 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-400 text-stone-950 font-black rounded-lg hover:from-amber-400 hover:to-yellow-300 transition shadow">
+                COLLECT ALL
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('dev') === 'true') {
+            document.getElementById('dev-controls').classList.remove('hidden');
+        }
+
+        // --- Rules & Feedback Listeners ---
+        document.getElementById('btn-open-rules').onclick = () => document.getElementById('modal-rules').classList.remove('hidden');
+        document.getElementById('btn-close-rules').onclick = () => document.getElementById('modal-rules').classList.add('hidden');
+        document.getElementById('btn-open-feedback').onclick = () => document.getElementById('modal-feedback').classList.remove('hidden');
+        document.getElementById('btn-cancel-feedback').onclick = () => document.getElementById('modal-feedback').classList.add('hidden');
+        document.getElementById('btn-send-feedback').onclick = () => {
+            const val = document.getElementById('feedback-input').value.trim();
+            if (val) alert("Feedback sent! Thank you.");
+            document.getElementById('feedback-input').value = '';
+            document.getElementById('modal-feedback').classList.add('hidden');
+        };
+
+        // --- Web Audio Synthesizer (Pan Flutes & Andean Chimes) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+            if (type === 'spin') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(320, now);
+                osc.frequency.exponentialRampToValueAtTime(160, now + 0.12);
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.12);
+                osc.start(now);
+                osc.stop(now + 0.12);
+            } else if (type === 'coin') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(880 + Math.random() * 300, now);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                osc.start(now);
+                osc.stop(now + 0.08);
+            } else if (type === 'win') {
+                osc.type = 'sine';
+                // Andean pentatonic chime
+                osc.frequency.setValueAtTime(587.33, now); // D5
+                osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+                osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+                osc.frequency.setValueAtTime(880.00, now + 0.24); // A5
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.45);
+                osc.start(now);
+                osc.stop(now + 0.45);
+            } else if (type === 'burst') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(260, now);
+                osc.frequency.exponentialRampToValueAtTime(1040, now + 0.4);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.6);
+                osc.start(now);
+                osc.stop(now + 0.6);
+            } else if (type === 'bigwin') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.4);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.6);
+                osc.start(now);
+                osc.stop(now + 0.6);
+            } else if (type === 'levelup') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(600, now + 0.2);
+                osc.frequency.exponentialRampToValueAtTime(1200, now + 0.5);
+                gain.gain.setValueAtTime(0.35, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.7);
+                osc.start(now);
+                osc.stop(now + 0.7);
+            }
+        }
+
+        // --- Synchronized Arcade Bank & Levels ---
+        let bank = parseInt(localStorage.getItem('arcade_bank') || '10000', 10);
+        if (isNaN(bank) || bank <= 0) bank = 10000;
+
+        function setBank(val) {
+            bank = Math.max(0, val);
+            localStorage.setItem('arcade_bank', bank);
+            document.getElementById('display-bank').textContent = bank.toLocaleString();
+        }
+
+        const RANK_TITLES = [
+            "APPRENTICE WARRIOR", "GLADIATOR", "SHIELD BEARER", "BATTLE COMMANDER", "WARLORD",
+            "IRON CHAMPION", "SKULLCRUSHER KING", "DREADNOUGHT", "BLOODFORGED GENERAL", "WAR-GOD AVATAR",
+            "SHADOWBLADE REAPER", "LORD OF THE CRIMSON PEAK", "TITAN BREAKER", "HIGH INQUISITOR OF VALOR",
+            "IMMORTAL CONQUEROR", "DRAGONSLAYER EMPEROR", "SOVEREIGN OF ASHES", "DOOMHAMMER ARCHON",
+            "ETERNAL SKULLCRUSHER", "MYTHIC DEMI-GOD OF WAR"
+        ];
+
+        let playerLevel = parseInt(localStorage.getItem('arcade_level') || '1', 10);
+        let playerXP = parseInt(localStorage.getItem('arcade_xp') || '0', 10);
+
+        function getXpNeeded(level) { return level * 500; }
+        function getRankTitle(level) { return RANK_TITLES[Math.min(level - 1, RANK_TITLES.length - 1)]; }
+
+        function updateXPDisplay() {
+            const needed = getXpNeeded(playerLevel);
+            const pct = Math.min(100, Math.floor((playerXP / needed) * 100));
+            document.getElementById('display-level').textContent = playerLevel;
+            document.getElementById('display-rank-title').textContent = getRankTitle(playerLevel);
+            document.getElementById('xp-bar').style.width = `${pct}%`;
+            document.getElementById('xp-text').textContent = `${playerXP.toLocaleString()} / ${needed.toLocaleString()} XP (Earn on 10X+ Wins)`;
+        }
+
+        function addXP(points) {
+            playerXP += points;
+            let leveledUp = false;
+            while (playerXP >= getXpNeeded(playerLevel)) {
+                playerXP -= getXpNeeded(playerLevel);
+                playerLevel += 1;
+                leveledUp = true;
+            }
+            localStorage.setItem('arcade_level', playerLevel);
+            localStorage.setItem('arcade_xp', playerXP);
+            updateXPDisplay();
+            return leveledUp;
+        }
+
+        function triggerLevelUpModal() {
+            return new Promise(resolve => {
+                playSound('levelup');
+                const bonusReward = playerLevel * 5000;
+                setBank(bank + bonusReward);
+
+                document.getElementById('levelup-num').textContent = playerLevel;
+                document.getElementById('levelup-title').textContent = getRankTitle(playerLevel);
+                document.getElementById('levelup-bonus-reward').textContent = `+${bonusReward.toLocaleString()} Credits`;
+
+                const modal = document.getElementById('modal-levelup');
+                modal.classList.remove('hidden');
+
+                const dismiss = () => {
+                    modal.classList.add('hidden');
+                    document.getElementById('btn-dismiss-levelup').removeEventListener('click', dismiss);
+                    resolve();
+                };
+                document.getElementById('btn-dismiss-levelup').addEventListener('click', dismiss);
+            });
+        }
+
+        // --- Coin Flying Animation ---
+        function animateCoinFly(amount, sourceElements) {
+            return new Promise(resolve => {
+                const target = document.getElementById('bank-container');
+                const targetRect = target.getBoundingClientRect();
+                const coinCount = Math.min(18, Math.max(6, Math.floor(amount / currentBet) * 2));
+                const targetX = targetRect.left + targetRect.width / 2;
+                const targetY = targetRect.top + targetRect.height / 2;
+
+                let completed = 0;
+                for (let i = 0; i < coinCount; i++) {
+                    const coin = document.createElement('div');
+                    coin.className = 'flying-coin';
+                    coin.textContent = '🪙';
+
+                    let startX = window.innerWidth / 2;
+                    let startY = window.innerHeight / 2;
+
+                    if (sourceElements && sourceElements.length > 0) {
+                        const randomSrc = sourceElements[Math.floor(Math.random() * sourceElements.length)];
+                        const srcRect = randomSrc.getBoundingClientRect();
+                        startX = srcRect.left + srcRect.width / 2;
+                        startY = srcRect.top + srcRect.height / 2;
+                    }
+
+                    startX += (Math.random() - 0.5) * 60;
+                    startY += (Math.random() - 0.5) * 60;
+
+                    coin.style.left = `${startX}px`;
+                    coin.style.top = `${startY}px`;
+                    document.body.appendChild(coin);
+
+                    setTimeout(() => {
+                        coin.style.transform = `translate(${targetX - startX}px, ${targetY - startY}px) scale(0.6)`;
+                        coin.style.opacity = '0.3';
+                    }, 50 + i * 45);
+
+                    setTimeout(() => {
+                        playSound('coin');
+                        coin.remove();
+                        target.classList.add('bg-amber-500/20');
+                        setTimeout(() => target.classList.remove('bg-amber-500/20'), 150);
+
+                        completed++;
+                        if (completed >= coinCount) resolve();
+                    }, 750 + i * 45);
+                }
+            });
+        }
+
+        // Animate coin from reel into a specific pack llama
+        function animateFeedPack(packId, fromCell) {
+            const packEl = document.getElementById(packId);
+            const pRect = packEl.getBoundingClientRect();
+            const cRect = fromCell.getBoundingClientRect();
+
+            const coin = document.createElement('div');
+            coin.className = 'flying-coin';
+            coin.textContent = '✨';
+            coin.style.left = `${cRect.left + cRect.width/2}px`;
+            coin.style.top = `${cRect.top + cRect.height/2}px`;
+            document.body.appendChild(coin);
+
+            const destX = pRect.left + pRect.width / 2;
+            const destY = pRect.top + pRect.height / 2;
+
+            setTimeout(() => {
+                coin.style.transform = `translate(${destX - (cRect.left + cRect.width/2)}px, ${destY - (cRect.top + cRect.height/2)}px) scale(1.4)`;
+            }, 30);
+
+            setTimeout(() => {
+                playSound('coin');
+                coin.remove();
+                packEl.classList.add('swelling');
+                setTimeout(() => packEl.classList.remove('swelling'), 250);
+            }, 750);
+        }
+
+        // --- Reel & Symbol Setup ---
+        const ROWS = 3;
+        const COLS = 5;
+        let currentBet = 100;
+        let isSpinning = false;
+
+        const SYMBOLS = [
+            { id: "FLUTE",   icon: "🪈", name: "Andean Flute", color: "text-amber-200", weight: 0.15 },
+            { id: "PONCHO",  icon: "🧣", name: "Alpaca Poncho", color: "text-orange-300", weight: 0.14 },
+            { id: "TABLET",  icon: "☀️", name: "Sun Tablet", color: "text-yellow-300", weight: 0.13 },
+            { id: "IDOL",    icon: "🗿", name: "Golden Idol", color: "text-amber-400", weight: 0.12 },
+            { id: "ALPACAS", icon: "🦙", name: "Fluffy Alpaca", color: "text-stone-100", weight: 0.11 },
+            { id: "GOLDEN_LLAMA", icon: "✨🦙✨", name: "Golden Llama", color: "text-yellow-300 font-black", weight: 0.08 }
+        ];
+
+        const PAYTABLE = {
+            "FLUTE":   {3: 5,   4: 15,  5: 50},
+            "PONCHO":  {3: 8,   4: 25,  5: 75},
+            "TABLET":  {3: 10,  4: 35,  5: 100},
+            "IDOL":    {3: 20,  4: 60,  5: 200},
+            "ALPACAS": {3: 40,  4: 120, 5: 500},
+            "GOLDEN_LLAMA": {3: 60, 4: 250, 5: 1000}
+        };
+
+        const PAYLINES = [
+            [[1,0], [1,1], [1,2], [1,3], [1,4]],
+            [[0,0], [0,1], [0,2], [0,3], [0,4]],
+            [[2,0], [2,1], [2,2], [2,3], [2,4]],
+            [[0,0], [1,1], [2,2], [1,3], [0,4]],
+            [[2,0], [1,1], [0,2], [1,3], [2,4]]
+        ];
+
+        let baseGrid = Array(ROWS).fill(null).map(() => Array(COLS).fill(SYMBOLS[0]));
+
+        // --- 3 PACK ACCUMULATOR POT STATE ---
+        let packLevels = {
+            wilds: 20,
+            jackpots: 25,
+            mult: 15
+        };
+
+        function updatePackMeters() {
+            document.getElementById('fill-wilds').style.width = `${packLevels.wilds}%`;
+            document.getElementById('fill-jackpots').style.width = `${packLevels.jackpots}%`;
+            document.getElementById('fill-mult').style.width = `${packLevels.mult}%`;
+        }
+
+        const reelsGridEl = document.getElementById('reels-grid');
+        const paylineCanvas = document.getElementById('payline-canvas');
+        const winDisplay = document.getElementById('display-win');
+        const btnSpin = document.getElementById('btn-spin');
+        const modalBigWin = document.getElementById('modal-big-win');
+        const bonusBanner = document.getElementById('bonus-banner');
+
+        function formatCompact(num) {
+            if (num >= 1e9) return (num / 1e9).toFixed(num % 1e9 !== 0 ? 1 : 0) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(num % 1e6 !== 0 ? 1 : 0) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(num % 1e3 !== 0 ? 1 : 0) + 'K';
+            return num.toLocaleString();
+        }
+
+        function initGrid() {
+            reelsGridEl.innerHTML = '';
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const cell = document.createElement('div');
+                    cell.id = `cell-${r}-${c}`;
+                    cell.className = 'symbol-card bg-emerald-950/60 border border-emerald-800/40 rounded flex flex-col items-center justify-center text-sm sm:text-base font-bold shadow-inner relative overflow-hidden';
+                    reelsGridEl.appendChild(cell);
+                }
+            }
+            updateGridDisplay();
+            updateJackpots();
+            updateXPDisplay();
+            updatePackMeters();
+            setBank(bank);
+        }
+
+        function updateJackpots() {
+            document.getElementById('jp-mini').textContent = formatCompact(currentBet * 15);
+            document.getElementById('jp-minor').textContent = formatCompact(currentBet * 50);
+            document.getElementById('jp-major').textContent = formatCompact(currentBet * 250);
+            document.getElementById('jp-grand').textContent = formatCompact(currentBet * 1000);
+            btnSpin.textContent = `SPIN (${formatCompact(currentBet)})`;
+        }
+
+        function getRandomSymbol() {
+            const r = Math.random();
+            let acc = 0;
+            for (const sym of SYMBOLS) {
+                acc += sym.weight;
+                if (r <= acc) return sym;
+            }
+            return SYMBOLS[0];
+        }
+
+        function updateGridDisplay() {
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const el = document.getElementById(`cell-${r}-${c}`);
+                    const sym = baseGrid[r][c];
+
+                    if (sym.id === 'GOLDEN_LLAMA') {
+                        el.className = 'symbol-card golden-llama-card bg-amber-950/90 rounded flex flex-col items-center justify-center text-center p-1';
+                        el.innerHTML = `
+                            <span class="text-xl sm:text-2xl filter drop-shadow">🦙</span>
+                            <span class="text-[9px] text-yellow-300 font-black tracking-tighter">GOLDEN</span>
+                        `;
+                    } else {
+                        el.className = 'symbol-card bg-emerald-950/60 border border-emerald-800/40 rounded flex flex-col items-center justify-center text-sm sm:text-base font-bold relative overflow-hidden';
+                        el.innerHTML = `<span class="${sym.color} text-lg sm:text-2xl">${sym.icon}</span>`;
+                    }
+                }
+            }
+        }
+
+        // --- Core Base Game Spin Engine ---
+        async function runBaseSpin() {
+            if (isSpinning) return;
+            isSpinning = true;
+            btnSpin.disabled = true;
+            clearPaylines();
+
+            if (bank < currentBet) {
+                alert("Not enough credits! Please select a smaller bet.");
+                isSpinning = false;
+                btnSpin.disabled = false;
+                return;
+            }
+            setBank(bank - currentBet);
+            playSound('spin');
+
+            // Rolling reel animation
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    document.getElementById(`cell-${r}-${c}`).classList.add('rolling');
+                }
+            }
+
+            await new Promise(res => setTimeout(res, 450));
+
+            const goldenLlamaCells = [];
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const el = document.getElementById(`cell-${r}-${c}`);
+                    el.classList.remove('rolling');
+
+                    const sym = getRandomSymbol();
+                    baseGrid[r][c] = sym;
+
+                    if (sym.id === 'GOLDEN_LLAMA') {
+                        goldenLlamaCells.push({ r, c, el });
+                    }
+                }
+            }
+
+            updateGridDisplay();
+
+            // Line Win Evaluation
+            let totalSpinWin = 0;
+            const lineBet = Math.max(1, Math.floor(currentBet / PAYLINES.length));
+            const winningLines = [];
+
+            PAYLINES.forEach((line, index) => {
+                let target = null;
+                let count = 0;
+
+                for (let i = 0; i < line.length; i++) {
+                    const [r, c] = line[i];
+                    const symId = baseGrid[r][c].id;
+
+                    if (target === null) {
+                        target = symId;
+                        count++;
+                    } else if (symId === target || symId === 'GOLDEN_LLAMA' || target === 'GOLDEN_LLAMA') {
+                        if (target === 'GOLDEN_LLAMA') target = symId;
+                        count++;
+                    } else {
+                        break;
+                    }
+                }
+
+                if (count >= 3 && target && PAYTABLE[target]) {
+                    const mult = PAYTABLE[target][count] || 0;
+                    if (mult > 0) {
+                        const win = mult * lineBet;
+                        totalSpinWin += win;
+                        winningLines.push({ line, index, win });
+                    }
+                }
+            });
+
+            if (totalSpinWin > 0) {
+                drawPaylines(winningLines);
+                playSound('win');
+                winDisplay.textContent = totalSpinWin.toLocaleString();
+
+                const winElements = winningLines.flatMap(w => w.line.map(([r,c]) => document.getElementById(`cell-${r}-${c}`)));
+                await animateCoinFly(totalSpinWin, winElements);
+                setBank(bank + totalSpinWin);
+
+                if (totalSpinWin >= currentBet * 10) {
+                    await showBigWin(totalSpinWin);
+                }
+            } else {
+                winDisplay.textContent = '0';
+            }
+
+            // Feed Pack-Mule Llamas if Golden Llamas landed
+            let triggerPacks = [];
+            if (goldenLlamaCells.length > 0) {
+                for (const cellObj of goldenLlamaCells) {
+                    // Pick a random pack to feed
+                    const targets = ['wilds', 'jackpots', 'mult'];
+                    const picked = targets[Math.floor(Math.random() * targets.length)];
+                    animateFeedPack(`pack-${picked}`, cellObj.el);
+
+                    // Grow pack meter
+                    packLevels[picked] = Math.min(100, packLevels[picked] + Math.floor(4 + Math.random() * 8));
+
+                    // Random trigger check (proportional to fullness)
+                    const burstOdds = (packLevels[picked] / 100) * 0.18; // up to 18% chance
+                    if (Math.random() < burstOdds && !triggerPacks.includes(picked)) {
+                        triggerPacks.push(picked);
+                    }
+                }
+
+                updatePackMeters();
+                await new Promise(r => setTimeout(r, 800));
+            }
+
+            // If any pack burst open, launch Free Spins Bonus
+            if (triggerPacks.length > 0) {
+                playSound('burst');
+                await launchLlamaFreeSpins(triggerPacks);
+            }
+
+            isSpinning = false;
+            btnSpin.disabled = false;
+        }
+
+        // --- FREE SPINS BONUS ROUND ENGINE ---
+        async function launchLlamaFreeSpins(features) {
+            bonusBanner.classList.remove('hidden');
+            let freeSpinsLeft = 8;
+            let bonusTotalAccumulated = 0;
+
+            const hasExtraWilds = features.includes('wilds');
+            const hasJackpots = features.includes('jackpots');
+            const hasMultiplier = features.includes('mult');
+            const globalMultiplier = hasMultiplier ? (Math.random() < 0.6 ? 2 : (Math.random() < 0.8 ? 3 : 5)) : 1;
+
+            alert(`🦙 THE PACK BURST OPEN!\n\nTriggered: ${features.map(f => f.toUpperCase()).join(' + ')}\nStarting Free Spins: 8\nMultiplier: ${globalMultiplier}X`);
+
+            // Reset triggered meters back to starting values
+            features.forEach(f => packLevels[f] = 15);
+            updatePackMeters();
+
+            while (freeSpinsLeft > 0) {
+                freeSpinsLeft--;
+                bonusBanner.textContent = `🌟 FREE SPINS LEFT: ${freeSpinsLeft} | TOTAL: ${bonusTotalAccumulated.toLocaleString()} 🌟`;
+                playSound('spin');
+
+                // Roll reels
+                for (let r = 0; r < ROWS; r++) {
+                    for (let c = 0; c < COLS; c++) {
+                        document.getElementById(`cell-${r}-${c}`).classList.add('rolling');
+                    }
+                }
+                await new Promise(r => setTimeout(r, 450));
+
+                let goldenCountInSpin = 0;
+                for (let r = 0; r < ROWS; r++) {
+                    for (let c = 0; c < COLS; c++) {
+                        const el = document.getElementById(`cell-${r}-${c}`);
+                        el.classList.remove('rolling');
+
+                        let sym = getRandomSymbol();
+
+                        // Extra Wilds feature: force wild substitutions on middle reels
+                        if (hasExtraWilds && (c === 1 || c === 2 || c === 3) && Math.random() < 0.35) {
+                            sym = { id: "GOLDEN_LLAMA", icon: "✨🦙✨", color: "text-yellow-300 font-black" };
+                        }
+
+                        baseGrid[r][c] = sym;
+                        if (sym.id === 'GOLDEN_LLAMA') goldenCountInSpin++;
+                    }
+                }
+                updateGridDisplay();
+
+                // Free Spin Retrigger Check: >= 2 Golden Llamas gives +3 Spins
+                if (goldenCountInSpin >= 2) {
+                    freeSpinsLeft += 3;
+                    playSound('burst');
+                    alert(`✨ RETRIGGER! Landed ${goldenCountInSpin} Golden Llamas: +3 Free Spins!`);
+                }
+
+                // Check Jackpot feature drops
+                if (hasJackpots && goldenCountInSpin > 0) {
+                    const r = Math.random();
+                    if (r < 0.04) {
+                        const jpVal = currentBet * 50; // Minor
+                        bonusTotalAccumulated += jpVal;
+                        playSound('win');
+                    } else if (r < 0.15) {
+                        const jpVal = currentBet * 15; // Mini
+                        bonusTotalAccumulated += jpVal;
+                        playSound('win');
+                    }
+                }
+
+                // Line win evaluation for free spin
+                let spinWin = 0;
+                const lineBet = Math.max(1, Math.floor(currentBet / PAYLINES.length));
+
+                PAYLINES.forEach(line => {
+                    let target = null;
+                    let count = 0;
+                    for (let i = 0; i < line.length; i++) {
+                        const [r, c] = line[i];
+                        const symId = baseGrid[r][c].id;
+                        if (target === null) {
+                            target = symId;
+                            count++;
+                        } else if (symId === target || symId === 'GOLDEN_LLAMA' || target === 'GOLDEN_LLAMA') {
+                            if (target === 'GOLDEN_LLAMA') target = symId;
+                            count++;
+                        } else {
+                            break;
+                        }
+                    }
+                    if (count >= 3 && target && PAYTABLE[target]) {
+                        spinWin += (PAYTABLE[target][count] || 0) * lineBet;
+                    }
+                });
+
+                spinWin = spinWin * globalMultiplier;
+                if (spinWin > 0) {
+                    bonusTotalAccumulated += spinWin;
+                    playSound('win');
+                }
+
+                await new Promise(r => setTimeout(r, 650));
+            }
+
+            bonusBanner.classList.add('hidden');
+
+            // Show Bonus Collection Summary Modal
+            await new Promise(resolve => {
+                const summaryModal = document.getElementById('modal-bonus-summary');
+                document.getElementById('bonus-total-win').textContent = bonusTotalAccumulated.toLocaleString();
+                summaryModal.classList.remove('hidden');
+
+                document.getElementById('btn-collect-bonus').onclick = async () => {
+                    summaryModal.classList.add('hidden');
+                    await animateCoinFly(bonusTotalAccumulated, []);
+                    setBank(bank + bonusTotalAccumulated);
+
+                    if (bonusTotalAccumulated >= currentBet * 10) {
+                        await showBigWin(bonusTotalAccumulated);
+                    }
+                    resolve();
+                };
+            });
+        }
+
+        function clearPaylines() {
+            paylineCanvas.innerHTML = '';
+        }
+
+        function drawPaylines(lines) {
+            clearPaylines();
+            const colors = ['#f59e0b', '#10b981', '#38bdf8', '#c084fc', '#f43f5e'];
+            lines.forEach(({ line, index }) => {
+                const points = line.map(([r, c]) => {
+                    const el = document.getElementById(`cell-${r}-${c}`);
+                    const rect = el.getBoundingClientRect();
+                    const parentRect = reelsGridEl.getBoundingClientRect();
+                    return `${rect.left - parentRect.left + rect.width / 2},${rect.top - parentRect.top + rect.height / 2}`;
+                }).join(' ');
+
+                const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+                polyline.setAttribute('points', points);
+                polyline.setAttribute('fill', 'none');
+                polyline.setAttribute('stroke', colors[index % colors.length]);
+                polyline.setAttribute('stroke-width', '4');
+                polyline.setAttribute('stroke-linecap', 'round');
+                polyline.setAttribute('stroke-dasharray', '8 4');
+                paylineCanvas.appendChild(polyline);
+            });
+        }
+
+        function showBigWin(amount) {
+            return new Promise(async resolve => {
+                document.getElementById('slot-machine').classList.add('shake');
+                playSound('bigwin');
+
+                const multiplier = Math.floor(amount / currentBet);
+                let title = "SACRED TREASURE!";
+                let xpGain = 100;
+
+                if (multiplier >= 50) {
+                    title = "LEGENDARY SUN GOD HARVEST!";
+                    xpGain = 1000;
+                } else if (multiplier >= 25) {
+                    title = "GOLDEN LLAMA BOUNTY!";
+                    xpGain = 300;
+                }
+
+                document.getElementById('big-win-title').textContent = title;
+                document.getElementById('big-win-amount').textContent = amount.toLocaleString();
+                document.getElementById('big-win-multiplier').textContent = `${multiplier}X TOTAL BET`;
+                document.getElementById('big-win-xp').textContent = `+${xpGain.toLocaleString()} XP AWARDED!`;
+
+                modalBigWin.classList.remove('hidden');
+
+                const dismiss = async () => {
+                    modalBigWin.classList.add('hidden');
+                    document.getElementById('slot-machine').classList.remove('shake');
+                    document.getElementById('btn-dismiss-bigwin').removeEventListener('click', dismiss);
+
+                    const didLevelUp = addXP(xpGain);
+                    if (didLevelUp) {
+                        await triggerLevelUpModal();
+                    }
+                    resolve();
+                };
+                document.getElementById('btn-dismiss-bigwin').addEventListener('click', dismiss);
+            });
+        }
+
+        btnSpin.addEventListener('click', runBaseSpin);
+
+        const INACTIVE_BET_CLASSES = ['bg-emerald-900/60', 'text-emerald-200', 'border-emerald-800'];
+        const ACTIVE_BET_CLASSES   = ['bg-amber-500', 'text-stone-950', 'border-yellow-300'];
+
+        document.querySelectorAll('.bet-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (isSpinning) return;
+                document.querySelectorAll('.bet-btn').forEach(b => {
+                    b.classList.remove(...ACTIVE_BET_CLASSES);
+                    b.classList.add(...INACTIVE_BET_CLASSES);
+                });
+                btn.classList.remove(...INACTIVE_BET_CLASSES);
+                btn.classList.add(...ACTIVE_BET_CLASSES);
+
+                currentBet = parseInt(btn.dataset.bet, 10);
+                updateJackpots();
+            });
+        });
+
+        // Test bonus button (?dev=true)
+        document.getElementById('btn-test-pack').addEventListener('click', () => {
+            if (isSpinning) return;
+            launchLlamaFreeSpins(['wilds', 'mult']);
+        });
+
+        initGrid();
+    </script>
+</body>
+</html>
