@@ -125,14 +125,15 @@
             </div>
         </div>
 
-        <!-- Bet Selection -->
+        <!-- Bet Selection (Includes 1, 10, 100, 1K, and 1M) -->
         <div class="flex items-center gap-2">
             <span class="text-xs text-stone-400 font-bold mr-1">BET:</span>
             <div class="inline-flex rounded-md shadow-sm" role="group">
-                <button type="button" class="bet-btn px-3 py-1.5 text-xs font-bold bg-stone-800 border border-stone-700 text-stone-300 rounded-l hover:bg-stone-700 transition active:scale-95" data-bet="1">1</button>
-                <button type="button" class="bet-btn px-3 py-1.5 text-xs font-bold bg-stone-800 border-t border-b border-stone-700 text-stone-300 hover:bg-stone-700 transition active:scale-95" data-bet="10">10</button>
-                <button type="button" class="bet-btn px-3 py-1.5 text-xs font-bold bg-amber-600 border border-amber-500 text-stone-950 hover:bg-amber-500 transition active:scale-95" data-bet="100">100</button>
-                <button type="button" class="bet-btn px-3 py-1.5 text-xs font-bold bg-stone-800 border border-stone-700 text-stone-300 rounded-r hover:bg-stone-700 transition active:scale-95" data-bet="1000">1K</button>
+                <button type="button" class="bet-btn px-2.5 py-1.5 text-xs font-bold bg-stone-800 border border-stone-700 text-stone-300 rounded-l hover:bg-stone-700 transition active:scale-95" data-bet="1">1</button>
+                <button type="button" class="bet-btn px-2.5 py-1.5 text-xs font-bold bg-stone-800 border-t border-b border-stone-700 text-stone-300 hover:bg-stone-700 transition active:scale-95" data-bet="10">10</button>
+                <button type="button" class="bet-btn px-2.5 py-1.5 text-xs font-bold bg-amber-600 border border-amber-500 text-stone-950 hover:bg-amber-500 transition active:scale-95" data-bet="100">100</button>
+                <button type="button" class="bet-btn px-2.5 py-1.5 text-xs font-bold bg-stone-800 border-t border-b border-stone-700 text-stone-300 hover:bg-stone-700 transition active:scale-95" data-bet="1000">1K</button>
+                <button type="button" class="bet-btn px-2.5 py-1.5 text-xs font-bold bg-stone-800 border border-stone-700 text-stone-300 rounded-r hover:bg-stone-700 transition active:scale-95" data-bet="1000000">1M</button>
             </div>
         </div>
 
@@ -181,7 +182,7 @@
             document.getElementById('dev-controls').classList.remove('hidden');
         }
 
-        // --- Web Audio Synthesizer (Zero External Files) ---
+        // --- Web Audio Synthesizer ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
         function playSound(type) {
@@ -388,7 +389,7 @@
                         r: 0,
                         c: pickCol,
                         value: currentBet * 3,
-                        label: `${currentBet * 3}`
+                        label: `${(currentBet * 3).toLocaleString()}`
                     });
                 }
             }
@@ -628,7 +629,7 @@
             if (r < 0.05)  return { value: currentBet * 50,  label: "MINOR" };
             if (r < 0.15)  return { value: currentBet * 15,  label: "MINI" };
             const mult = [1, 2, 3, 5, 8, 10][Math.floor(Math.random() * 6)];
-            return { value: currentBet * mult, label: `${currentBet * mult}` };
+            return { value: currentBet * mult, label: `${(currentBet * mult).toLocaleString()}` };
         }
 
         function checkBonusRowUnlocks() {
@@ -675,26 +676,35 @@
         // --- Event Listeners ---
         btnSpin.addEventListener('click', () => runBaseSpin(false));
 
+        // Bet Selector with Robust Class Highlighting
+        const INACTIVE_BET_CLASSES = ['bg-stone-800', 'text-stone-300', 'border-stone-700'];
+        const ACTIVE_BET_CLASSES   = ['bg-amber-600', 'text-stone-950', 'border-amber-500'];
+
         document.querySelectorAll('.bet-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 if (isSpinning) return;
+
                 document.querySelectorAll('.bet-btn').forEach(b => {
-                    b.className = b.className.replace('bg-amber-600 text-stone-950 border-amber-500', 'bg-stone-800 text-stone-300 border-stone-700');
+                    b.classList.remove(...ACTIVE_BET_CLASSES);
+                    b.classList.add(...INACTIVE_BET_CLASSES);
                 });
-                btn.className = btn.className.replace('bg-stone-800 text-stone-300 border-stone-700', 'bg-amber-600 text-stone-950 border-amber-500');
-                currentBet = parseInt(btn.dataset.bet);
+
+                btn.classList.remove(...INACTIVE_BET_CLASSES);
+                btn.classList.add(...ACTIVE_BET_CLASSES);
+
+                currentBet = parseInt(btn.dataset.bet, 10);
                 updateJackpots();
             });
         });
 
-        // Test buttons
+        // Test buttons (only functional/visible when ?dev=true)
         document.getElementById('btn-test-orb').addEventListener('click', () => {
             if (isSpinning) return;
             activeFallingOrbs = [{
                 r: 0,
                 c: 2,
                 value: currentBet * 5,
-                label: `${currentBet * 5}`
+                label: `${(currentBet * 5).toLocaleString()}`
             }];
             updateGridDisplay();
             runBaseSpin(true);
