@@ -59,7 +59,7 @@
 </head>
 <body class="min-h-screen flex flex-col items-center justify-between p-2 sm:p-4 text-xs sm:text-sm">
 
-    <!-- Top Jackpot Banners -->
+    <!-- Top Jackpot Banners & Player Level Header -->
     <header class="w-full max-w-4xl flex flex-col items-center gap-2">
         <div class="flex items-center justify-between w-full border-b border-amber-900/60 pb-2 px-2">
             <h1 class="text-xl sm:text-2xl font-black text-amber-400 tracking-wider font-['Cinzel_Decorative']">SKULLCRUSHER SLOTS</h1>
@@ -72,6 +72,20 @@
                 <button id="btn-test-bonus" class="bg-red-900 hover:bg-red-800 text-red-200 border border-red-500 text-xs px-2.5 py-1 rounded shadow transition">
                     ⚡ TEST BONUS
                 </button>
+            </div>
+        </div>
+
+        <!-- Level & XP Status Bar -->
+        <div class="w-full bg-stone-900/80 border border-stone-800 rounded-lg p-2 flex items-center justify-between gap-3 shadow-inner">
+            <div class="flex items-center gap-2">
+                <span class="bg-amber-600 text-stone-950 font-black px-2 py-0.5 rounded text-xs tracking-wider">LEVEL <span id="display-level">1</span></span>
+                <span class="text-[11px] text-amber-300 font-bold" id="display-rank-title">APPRENTICE WARRIOR</span>
+            </div>
+            <div class="flex-1 max-w-xs flex flex-col items-end">
+                <div class="w-full bg-stone-950 rounded-full h-2.5 border border-amber-900/50 overflow-hidden">
+                    <div id="xp-bar" class="bg-gradient-to-r from-amber-600 to-yellow-400 h-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <span class="text-[10px] text-stone-400 mt-0.5" id="xp-text">0 / 500 XP (Earn on 10X+ Big Wins)</span>
             </div>
         </div>
 
@@ -125,7 +139,7 @@
             </div>
         </div>
 
-        <!-- Bet Selection (Includes 1, 10, 100, 1K, and 1M) -->
+        <!-- Bet Selection (1, 10, 100, 1K, 1M) -->
         <div class="flex items-center gap-2">
             <span class="text-xs text-stone-400 font-bold mr-1">BET:</span>
             <div class="inline-flex rounded-md shadow-sm" role="group">
@@ -143,13 +157,31 @@
         </button>
     </footer>
 
-    <!-- BIG WIN OVERLAY -->
+    <!-- BIG WIN OVERLAY (With XP Award Display) -->
     <div id="modal-big-win" class="fixed inset-0 bg-black/85 flex items-center justify-center hidden z-50">
         <div class="text-center p-6 bg-stone-900 border-4 border-amber-500 rounded-2xl shadow-[0_0_60px_#d4af37] max-w-sm w-full mx-4">
             <h2 id="big-win-title" class="text-3xl sm:text-4xl font-black text-amber-400 font-['Cinzel_Decorative'] animate-bounce">BIG WIN!</h2>
             <div id="big-win-amount" class="text-4xl sm:text-5xl font-black text-yellow-300 my-4">0</div>
-            <p id="big-win-multiplier" class="text-sm font-bold text-stone-400 uppercase tracking-widest mb-4">15X TOTAL BET</p>
-            <button id="btn-dismiss-bigwin" class="px-6 py-2 bg-amber-600 text-stone-950 font-bold rounded-lg hover:bg-amber-500 transition">COLLECT</button>
+            <p id="big-win-multiplier" class="text-sm font-bold text-stone-400 uppercase tracking-widest mb-2">15X TOTAL BET</p>
+            <div id="big-win-xp" class="text-amber-300 font-black text-base mb-4 bg-amber-950/80 border border-amber-600 rounded py-1 px-3 inline-block">+100 XP AWARDED!</div>
+            <div>
+                <button id="btn-dismiss-bigwin" class="px-6 py-2 bg-amber-600 text-stone-950 font-bold rounded-lg hover:bg-amber-500 transition">COLLECT</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LEVEL UP CELEBRATION MODAL -->
+    <div id="modal-levelup" class="fixed inset-0 bg-black/90 flex items-center justify-center hidden z-50">
+        <div class="text-center p-6 bg-gradient-to-b from-stone-900 to-stone-950 border-4 border-yellow-500 rounded-2xl shadow-[0_0_80px_#ffd700] max-w-sm w-full mx-4">
+            <div class="text-amber-400 text-4xl mb-2">👑</div>
+            <h2 class="text-3xl font-black text-yellow-400 font-['Cinzel_Decorative'] animate-pulse">LEVEL UP!</h2>
+            <div class="text-xl font-black text-stone-200 mt-2">REACHED LEVEL <span id="levelup-num" class="text-amber-400">2</span></div>
+            <div id="levelup-title" class="text-sm font-bold text-amber-300 mt-1 mb-4">GLADIATOR</div>
+            <div class="bg-amber-950/70 border border-amber-600/80 rounded-lg p-3 mb-5 text-xs text-amber-200">
+                <span>Rank Bonus Granted:</span>
+                <div id="levelup-bonus-reward" class="text-lg font-black text-emerald-400 mt-1">+10,000 Credits</div>
+            </div>
+            <button id="btn-dismiss-levelup" class="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-400 text-stone-950 font-black rounded-lg hover:from-amber-400 hover:to-yellow-300 transition shadow">CONTINUE CONQUEST</button>
         </div>
     </div>
 
@@ -164,7 +196,7 @@
         </div>
 
         <div id="bonus-grid" class="grid grid-cols-5 gap-1.5 sm:gap-2 w-full max-w-xl my-auto py-2">
-            <!-- 40 spaces (8 rows x 5 cols) populated via JS -->
+            <!-- 40 spaces populated via JS -->
         </div>
 
         <div class="w-full max-w-xl flex justify-between items-center bg-stone-900 border border-stone-700 p-2 rounded">
@@ -226,7 +258,88 @@
                 gain.gain.linearRampToValueAtTime(0.01, now + 0.6);
                 osc.start(now);
                 osc.stop(now + 0.6);
+            } else if (type === 'levelup') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(600, now + 0.2);
+                osc.frequency.exponentialRampToValueAtTime(1200, now + 0.5);
+                gain.gain.setValueAtTime(0.35, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.7);
+                osc.start(now);
+                osc.stop(now + 0.7);
             }
+        }
+
+        // --- Player Level & XP System ---
+        const RANK_TITLES = [
+            "APPRENTICE WARRIOR",
+            "GLADIATOR",
+            "SHIELD BEARER",
+            "BATTLE COMMANDER",
+            "WARLORD",
+            "IRON CHAMPION",
+            "SKULLCRUSHER KING"
+        ];
+
+        let playerLevel = parseInt(localStorage.getItem('sc_level') || '1', 10);
+        let playerXP = parseInt(localStorage.getItem('sc_xp') || '0', 10);
+
+        function getXpNeeded(level) {
+            return level * 500;
+        }
+
+        function getRankTitle(level) {
+            const idx = Math.min(level - 1, RANK_TITLES.length - 1);
+            return RANK_TITLES[idx];
+        }
+
+        function updateXPDisplay() {
+            const needed = getXpNeeded(playerLevel);
+            const pct = Math.min(100, Math.floor((playerXP / needed) * 100));
+            document.getElementById('display-level').textContent = playerLevel;
+            document.getElementById('display-rank-title').textContent = getRankTitle(playerLevel);
+            document.getElementById('xp-bar').style.width = `${pct}%`;
+            document.getElementById('xp-text').textContent = `${playerXP.toLocaleString()} / ${needed.toLocaleString()} XP (Earn on 10X+ Big Wins)`;
+        }
+
+        function addXP(points) {
+            playerXP += points;
+            let leveledUp = false;
+
+            while (playerXP >= getXpNeeded(playerLevel)) {
+                playerXP -= getXpNeeded(playerLevel);
+                playerLevel += 1;
+                leveledUp = true;
+            }
+
+            localStorage.setItem('sc_level', playerLevel);
+            localStorage.setItem('sc_xp', playerXP);
+            updateXPDisplay();
+
+            return leveledUp;
+        }
+
+        function triggerLevelUpModal() {
+            return new Promise(resolve => {
+                playSound('levelup');
+                const bonusReward = playerLevel * 5000;
+                bank += bonusReward;
+                bankDisplay.textContent = bank.toLocaleString();
+
+                document.getElementById('levelup-num').textContent = playerLevel;
+                document.getElementById('levelup-title').textContent = getRankTitle(playerLevel);
+                document.getElementById('levelup-bonus-reward').textContent = `+${bonusReward.toLocaleString()} Credits`;
+
+                const modal = document.getElementById('modal-levelup');
+                modal.classList.remove('hidden');
+
+                const dismiss = () => {
+                    modal.classList.add('hidden');
+                    document.getElementById('btn-dismiss-levelup').removeEventListener('click', dismiss);
+                    resolve();
+                };
+                document.getElementById('btn-dismiss-levelup').addEventListener('click', dismiss);
+            });
         }
 
         // --- Game Definitions & State ---
@@ -295,6 +408,7 @@
             }
             updateGridDisplay();
             updateJackpots();
+            updateXPDisplay();
         }
 
         function updateJackpots() {
@@ -441,6 +555,7 @@
                 drawPaylines(winningLines);
                 playSound('win');
 
+                // Check 10x Big Win (Awards XP & Level Checks)
                 if (totalSpinWin >= currentBet * 10) {
                     await showBigWin(totalSpinWin);
                 }
@@ -514,24 +629,41 @@
             });
         }
 
-        // --- Big Win Celebration Modal ---
+        // --- Big Win Celebration Modal With Level Progression ---
         function showBigWin(amount) {
-            return new Promise(resolve => {
+            return new Promise(async resolve => {
                 document.getElementById('slot-machine').classList.add('shake');
                 playSound('bigwin');
 
                 const multiplier = Math.floor(amount / currentBet);
-                const title = multiplier >= 50 ? "LEGENDARY MEGA WIN!" : multiplier >= 25 ? "SUPER WIN!" : "BIG WIN!";
+                let title = "BIG WIN!";
+                let xpGain = 100;
+
+                if (multiplier >= 50) {
+                    title = "LEGENDARY MEGA WIN!";
+                    xpGain = 1000;
+                } else if (multiplier >= 25) {
+                    title = "SUPER WIN!";
+                    xpGain = 300;
+                }
+
                 document.getElementById('big-win-title').textContent = title;
                 document.getElementById('big-win-amount').textContent = amount.toLocaleString();
                 document.getElementById('big-win-multiplier').textContent = `${multiplier}X TOTAL BET`;
+                document.getElementById('big-win-xp').textContent = `+${xpGain.toLocaleString()} XP AWARDED!`;
 
                 modalBigWin.classList.remove('hidden');
 
-                const dismiss = () => {
+                const dismiss = async () => {
                     modalBigWin.classList.add('hidden');
                     document.getElementById('slot-machine').classList.remove('shake');
                     document.getElementById('btn-dismiss-bigwin').removeEventListener('click', dismiss);
+
+                    // Process XP and trigger level up if threshold crossed
+                    const didLevelUp = addXP(xpGain);
+                    if (didLevelUp) {
+                        await triggerLevelUpModal();
+                    }
                     resolve();
                 };
                 document.getElementById('btn-dismiss-bigwin').addEventListener('click', dismiss);
