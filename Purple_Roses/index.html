@@ -16,9 +16,7 @@
             overflow-x: hidden;
         }
 
-        .serif-title {
-            font-family: 'Playfair Display', serif;
-        }
+        .serif-title { font-family: 'Playfair Display', serif; }
 
         .cottage-border {
             border: 2px solid #d8b4e2;
@@ -73,28 +71,17 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Garden Pick Card Flipping */
-        .rose-card {
-            perspective: 800px;
-        }
+        .rose-card { perspective: 800px; }
         .rose-inner {
             transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
         }
-        .rose-inner.flipped {
-            transform: rotateY(180deg);
-        }
-        .rose-front, .rose-back {
-            backface-visibility: hidden;
-        }
-        .rose-back {
-            transform: rotateY(180deg);
-        }
+        .rose-inner.flipped { transform: rotateY(180deg); }
+        .rose-front, .rose-back { backface-visibility: hidden; }
+        .rose-back { transform: rotateY(180deg); }
 
-        /* Wheel Pointer */
         .wheel-pointer {
-            width: 0;
-            height: 0;
+            width: 0; height: 0;
             border-left: 14px solid transparent;
             border-right: 14px solid transparent;
             border-top: 24px solid #f472b6;
@@ -104,38 +91,48 @@
 </head>
 <body class="min-h-screen flex flex-col items-center justify-between p-2 sm:p-4 text-xs sm:text-sm">
 
-    <!-- Subtle Version Tag -->
     <div class="fixed bottom-1 right-2 text-[9px] text-purple-400/50 font-mono select-none pointer-events-none z-50">
-        v1.3.0 - Secret Conservatory
+        v1.4.0 - Secret Conservatory
     </div>
 
-    <!-- Header & Jackpots -->
+    <!-- Header & Navigation -->
     <header class="w-full max-w-4xl flex flex-col items-center gap-2">
-        <div class="flex items-center justify-between w-full border-b border-purple-800/40 pb-2 px-2">
+        <div class="flex items-center justify-between w-full border-b border-purple-800/40 pb-2 px-2 flex-wrap gap-2">
             <div class="flex items-center gap-2">
+                <a href="../index.html" class="bg-purple-900/60 hover:bg-purple-800 text-purple-200 border border-purple-700 text-xs px-2.5 py-1 rounded shadow transition flex items-center gap-1 font-bold">
+                    ⬅ LOBBY
+                </a>
                 <span class="text-2xl">🌹</span>
-                <h1 class="text-xl sm:text-2xl font-black text-purple-200 tracking-wider serif-title italic">PURPLE ROSES</h1>
+                <h1 class="text-lg sm:text-2xl font-black text-purple-200 tracking-wider serif-title italic">PURPLE ROSES</h1>
             </div>
             
-            <!-- Hidden by default: only appears when '?dev=true' is in the URL -->
-            <div id="dev-controls" class="hidden flex gap-1.5 flex-wrap">
-                <button id="btn-test-orb" class="bg-purple-900/80 hover:bg-purple-800 text-purple-200 border border-purple-500 text-xs px-2 py-1 rounded shadow transition">
-                    🌸 TEST WILD
+            <div class="flex items-center gap-2">
+                <button id="btn-open-rules" class="bg-purple-900/60 hover:bg-purple-800 text-pink-300 border border-purple-700 text-xs px-2.5 py-1 rounded shadow transition font-bold">
+                    📜 RULES
                 </button>
-                <button id="btn-test-bonus" class="bg-pink-900/80 hover:bg-pink-800 text-pink-200 border border-pink-500 text-xs px-2 py-1 rounded shadow transition">
-                    🌹 TEST GARDEN
+                <button id="btn-open-feedback" class="bg-purple-900/60 hover:bg-purple-800 text-pink-300 border border-purple-700 text-xs px-2.5 py-1 rounded shadow transition font-bold">
+                    💬 FEEDBACK
                 </button>
-                <button id="btn-test-wheel" class="bg-amber-900/80 hover:bg-amber-800 text-amber-200 border border-amber-500 text-xs px-2 py-1 rounded shadow transition">
-                    🎡 TEST WHEEL
-                </button>
+
+                <div id="dev-controls" class="hidden flex gap-1.5 flex-wrap">
+                    <button id="btn-test-orb" class="bg-purple-900/80 hover:bg-purple-800 text-purple-200 border border-purple-500 text-xs px-2 py-1 rounded shadow transition">
+                        🌸 TEST WILD
+                    </button>
+                    <button id="btn-test-bonus" class="bg-pink-900/80 hover:bg-pink-800 text-pink-200 border border-pink-500 text-xs px-2 py-1 rounded shadow transition">
+                        🌹 TEST GARDEN
+                    </button>
+                    <button id="btn-test-wheel" class="bg-amber-900/80 hover:bg-amber-800 text-amber-200 border border-amber-500 text-xs px-2 py-1 rounded shadow transition">
+                        🎡 TEST WHEEL
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- Level & XP Status Bar -->
+        <!-- Unified Level Bar -->
         <div class="w-full bg-purple-950/60 border border-purple-800/40 rounded-lg p-2 flex items-center justify-between gap-3 shadow-inner">
             <div class="flex items-center gap-2">
                 <span class="bg-gradient-to-r from-purple-600 to-pink-500 text-purple-950 font-extrabold px-2.5 py-0.5 rounded text-xs tracking-wider">LEVEL <span id="display-level">1</span></span>
-                <span class="text-[11px] text-purple-200 font-bold tracking-wide serif-title" id="display-rank-title">GARDEN COTTAGE ROOKIE</span>
+                <span class="text-[11px] text-purple-200 font-bold tracking-wide serif-title" id="display-rank-title">APPRENTICE WARRIOR</span>
             </div>
             <div class="flex-1 max-w-xs flex flex-col items-end">
                 <div class="w-full bg-stone-950 rounded-full h-2.5 border border-purple-800/40 overflow-hidden">
@@ -145,7 +142,7 @@
             </div>
         </div>
 
-        <!-- Botanical Jackpots -->
+        <!-- Jackpots -->
         <div class="grid grid-cols-4 gap-2 w-full text-center">
             <div class="bg-purple-950/50 border border-purple-800/50 rounded p-1 sm:p-2">
                 <div class="text-[10px] text-amber-300 font-bold">MINI (15x)</div>
@@ -169,11 +166,7 @@
     <!-- Main Reel Area (5x3) -->
     <main id="slot-machine" class="relative w-full max-w-4xl bg-purple-950/40 cottage-border rounded-xl p-3 sm:p-4 my-2 flex flex-col items-center backdrop-blur-sm">
         <svg id="payline-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></svg>
-
-        <div id="reels-grid" class="grid grid-cols-5 gap-1.5 sm:gap-2.5 w-full aspect-[5/3] max-h-[440px]">
-            <!-- 15 slots generated via JS -->
-        </div>
-
+        <div id="reels-grid" class="grid grid-cols-5 gap-1.5 sm:gap-2.5 w-full aspect-[5/3] max-h-[440px]"></div>
         <div id="falling-banner" class="hidden mt-2 text-center text-pink-300 font-bold text-xs sm:text-sm animate-pulse tracking-wide">
             🌸 BLOOMING WALKING WILD ACTIVE! RESPINNING...
         </div>
@@ -182,7 +175,6 @@
     <!-- Console Controls -->
     <footer class="w-full max-w-4xl bg-purple-950/80 border-t border-purple-800/40 p-2 sm:p-3 rounded-t-xl flex flex-col gap-2.5 backdrop-blur-md">
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <!-- Bank & Last Win -->
             <div class="flex items-center gap-4">
                 <div id="bank-container" class="relative p-1 rounded transition-colors duration-300">
                     <div class="text-[10px] text-purple-300/70 uppercase tracking-widest">Bank Balance</div>
@@ -194,16 +186,15 @@
                 </div>
             </div>
 
-            <!-- Big Spin Button -->
             <button id="btn-spin" class="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-500 hover:from-purple-500 hover:to-pink-500 text-purple-950 font-black text-base sm:text-lg rounded-lg shadow-[0_0_20px_rgba(232,121,249,0.45)] transition active:scale-95 disabled:opacity-50 disabled:pointer-events-none">
                 SPIN (100)
             </button>
         </div>
 
-        <!-- Bet Selection Row -->
+        <!-- Bet Tiers -->
         <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
             <span class="text-xs text-purple-300 font-bold mr-1 shrink-0">BET:</span>
-            <div class="inline-flex rounded-md shadow-sm shrink-0 gap-1" role="group">
+            <div class="inline-flex rounded-md shadow-sm shrink-0 gap-1">
                 <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-purple-900/60 border border-purple-800 text-purple-200 rounded hover:bg-purple-800 transition active:scale-95" data-bet="1">1</button>
                 <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-purple-900/60 border border-purple-800 text-purple-200 rounded hover:bg-purple-800 transition active:scale-95" data-bet="10">10</button>
                 <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-pink-600 border border-pink-400 text-purple-950 rounded hover:bg-pink-500 transition active:scale-95" data-bet="100">100</button>
@@ -218,6 +209,47 @@
             </div>
         </div>
     </footer>
+
+    <!-- RULES MODAL -->
+    <div id="modal-rules" class="fixed inset-0 bg-black/85 flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-purple-950 border-2 border-pink-400 rounded-2xl max-w-lg w-full p-5 max-h-[85vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-purple-800/60 pb-2 mb-3">
+                <h3 class="text-lg font-black text-pink-300 serif-title">PURPLE ROSES RULES</h3>
+                <button id="btn-close-rules" class="text-purple-300 hover:text-white font-bold text-lg">✕</button>
+            </div>
+            <div class="space-y-3 text-xs text-purple-200 leading-relaxed">
+                <div>
+                    <h4 class="font-bold text-pink-300">COTTAGE REEL PAYOUTS:</h4>
+                    <p>Matches pay left-to-right across 5 paylines. High paying symbols include Honey (🍯), Flower Baskets (🧺), and Cozy Cottages (🏡).</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-pink-300">BUTTERFLY WILD (🦋):</h4>
+                    <p>Acts as wild, completing winning connections on any active payline.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-pink-300">BLOOMING WALKING WILDS:</h4>
+                    <p>Drops on the top row, paying direct credits on each step down while triggering automatic free cascade respins.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-pink-300">SECRET ROSE GARDEN (PICK 3):</h4>
+                    <p>Land 3 Purple Roses (🌹) to enter the conservatory. Pick unopened roses to reveal credit bounties, multipliers, extra picks, or the <strong>Botanical Fortune Wheel (🎡)</strong> for instant jackpots!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FEEDBACK MODAL -->
+    <div id="modal-feedback" class="fixed inset-0 bg-black/85 flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-purple-950 border-2 border-pink-400 rounded-2xl max-w-sm w-full p-5 text-center">
+            <h3 class="text-lg font-black text-pink-300 serif-title mb-2">GARDEN FEEDBACK</h3>
+            <p class="text-xs text-purple-200 mb-3">Tell us what you think of Purple Roses or what to add next!</p>
+            <textarea id="feedback-input" class="w-full bg-stone-950 border border-purple-800 rounded p-2 text-xs text-purple-100 resize-none h-24 mb-3 focus:outline-none focus:border-pink-400" placeholder="Type your thoughts..."></textarea>
+            <div class="flex justify-end gap-2">
+                <button id="btn-cancel-feedback" class="px-3 py-1.5 bg-purple-900 text-purple-300 rounded font-bold hover:bg-purple-800">Cancel</button>
+                <button id="btn-send-feedback" class="px-4 py-1.5 bg-pink-600 text-purple-950 rounded font-black hover:bg-pink-500">Send</button>
+            </div>
+        </div>
+    </div>
 
     <!-- BIG WIN OVERLAY -->
     <div id="modal-big-win" class="fixed inset-0 bg-black/85 flex items-center justify-center hidden z-50">
@@ -247,7 +279,7 @@
         </div>
     </div>
 
-    <!-- THE SECRET ROSE GARDEN PICK-AND-WIN BONUS OVERLAY -->
+    <!-- THE SECRET ROSE GARDEN PICK-AND-WIN BONUS OVERLAY (With Highlighted Picks) -->
     <div id="modal-bonus" class="fixed inset-0 bg-stone-950/95 flex flex-col items-center justify-between p-3 sm:p-5 hidden z-40 overflow-y-auto">
         <div class="w-full max-w-3xl flex justify-between items-center border-b border-purple-800/60 pb-2">
             <div>
@@ -260,16 +292,12 @@
             </div>
         </div>
 
-        <!-- Multiplier Pill Banner -->
         <div class="my-2 flex items-center gap-2">
             <span class="text-xs text-purple-300 font-bold">GARDEN MULTIPLIER:</span>
             <span id="bonus-multiplier" class="bg-gradient-to-r from-pink-600 to-purple-600 px-3 py-0.5 rounded-full text-xs font-black text-purple-950 shadow">1X</span>
         </div>
 
-        <!-- 15 Rosebud Pick Grid -->
-        <div id="garden-grid" class="grid grid-cols-5 gap-2 sm:gap-3 w-full max-w-xl my-auto py-2">
-            <!-- 15 rose cards populated dynamically -->
-        </div>
+        <div id="garden-grid" class="grid grid-cols-5 gap-2 sm:gap-3 w-full max-w-xl my-auto py-2"></div>
 
         <div class="w-full max-w-xl flex justify-between items-center bg-purple-950/70 border border-purple-800 p-2.5 rounded text-xs text-purple-300">
             <div id="bonus-status-msg">Choose carefully among the conservatory roses...</div>
@@ -285,12 +313,9 @@
             <div class="text-xs font-bold text-pink-300 tracking-widest uppercase mb-1">Secret Conservatory</div>
             <h2 class="text-2xl font-black text-amber-200 serif-title mb-4">BOTANICAL FORTUNE WHEEL</h2>
 
-            <!-- Wheel Canvas Container -->
             <div class="relative w-[280px] h-[280px] sm:w-[320px] sm:h-[320px] my-2 flex items-center justify-center">
                 <canvas id="wheel-canvas" width="320" height="320" class="w-full h-full rounded-full shadow-2xl"></canvas>
-                <!-- Center Pointer at Top -->
                 <div class="absolute -top-3 left-1/2 -translate-x-1/2 wheel-pointer z-20"></div>
-                <!-- Center Rosette Pin -->
                 <div class="absolute w-12 h-12 bg-gradient-to-tr from-pink-600 to-purple-800 rounded-full border-2 border-pink-300 flex items-center justify-center text-xl shadow-lg z-10 pointer-events-none">
                     🌹
                 </div>
@@ -307,11 +332,22 @@
     </div>
 
     <script>
-        // --- Developer Mode Check ---
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('dev') === 'true') {
             document.getElementById('dev-controls').classList.remove('hidden');
         }
+
+        // --- Rules & Feedback Modal Listeners ---
+        document.getElementById('btn-open-rules').onclick = () => document.getElementById('modal-rules').classList.remove('hidden');
+        document.getElementById('btn-close-rules').onclick = () => document.getElementById('modal-rules').classList.add('hidden');
+        document.getElementById('btn-open-feedback').onclick = () => document.getElementById('modal-feedback').classList.remove('hidden');
+        document.getElementById('btn-cancel-feedback').onclick = () => document.getElementById('modal-feedback').classList.add('hidden');
+        document.getElementById('btn-send-feedback').onclick = () => {
+            const val = document.getElementById('feedback-input').value.trim();
+            if (val) alert("Thank you! Feedback recorded.");
+            document.getElementById('feedback-input').value = '';
+            document.getElementById('modal-feedback').classList.add('hidden');
+        };
 
         // --- Web Audio Synthesizer ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -349,9 +385,9 @@
                 osc.stop(now + 0.08);
             } else if (type === 'win') {
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(587.33, now); // D5
-                osc.frequency.setValueAtTime(739.99, now + 0.08); // F#5
-                osc.frequency.setValueAtTime(880.00, now + 0.16); // A5
+                osc.frequency.setValueAtTime(587.33, now);
+                osc.frequency.setValueAtTime(739.99, now + 0.08);
+                osc.frequency.setValueAtTime(880.00, now + 0.16);
                 gain.gain.setValueAtTime(0.25, now);
                 gain.gain.linearRampToValueAtTime(0.01, now + 0.38);
                 osc.start(now);
@@ -375,8 +411,8 @@
                 osc.stop(now + 0.75);
             } else if (type === 'reveal') {
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(659.25, now); // E5
-                osc.frequency.exponentialRampToValueAtTime(987.77, now + 0.25); // B5
+                osc.frequency.setValueAtTime(659.25, now);
+                osc.frequency.exponentialRampToValueAtTime(987.77, now + 0.25);
                 gain.gain.setValueAtTime(0.2, now);
                 gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
                 osc.start(now);
@@ -391,17 +427,16 @@
             }
         }
 
-        // --- Persistent Bank Balance ---
-        let bank = parseInt(localStorage.getItem('pr_bank') || '10000', 10);
+        // --- Unified Shared Bank & Progression ---
+        let bank = parseInt(localStorage.getItem('arcade_bank') || '10000', 10);
         if (isNaN(bank) || bank <= 0) bank = 10000;
 
         function setBank(val) {
             bank = Math.max(0, val);
-            localStorage.setItem('pr_bank', bank);
+            localStorage.setItem('arcade_bank', bank);
             document.getElementById('display-bank').textContent = bank.toLocaleString();
         }
 
-        // --- Money Fill-Up / Petal Floating Effect ---
         function animatePetalFly(amount, sourceElements) {
             return new Promise(resolve => {
                 const target = document.getElementById('bank-container');
@@ -451,36 +486,19 @@
             });
         }
 
-        // --- Cottagecore Level Progression Ranks ---
         const RANK_TITLES = [
-            "GARDEN COTTAGE ROOKIE",    // Lvl 1
-            "ROSEBUD ENTHUSIAST",       // Lvl 2
-            "HERBAL TEACUP BREWER",     // Lvl 3
-            "COZY CROCHET WEAVER",      // Lvl 4
-            "VINTAGE BOOKWORM",         // Lvl 5
-            "COTTAGE BOTANIST",         // Lvl 6
-            "LAVENDER AROMA MISTRESS",  // Lvl 7
-            "WILDFLOWER CONNOISSEUR",   // Lvl 8
-            "MEADOWLAND CARETAKER",     // Lvl 9
-            "QUEEN OF CROCHET & THORNS",// Lvl 10
-            "SECRET GARDEN KEEPER",     // Lvl 11
-            "MASTER BOTANICAL ALCHEMIST",// Lvl 12
-            "CONSERVATORY ARISTOCRAT",  // Lvl 13
-            "ARCH-DRUIDESS OF THE ROSE",// Lvl 14
-            "MYTHIC COTTAGE OVERLORD"   // Lvl 15+
+            "APPRENTICE WARRIOR", "GLADIATOR", "SHIELD BEARER", "BATTLE COMMANDER", "WARLORD",
+            "IRON CHAMPION", "SKULLCRUSHER KING", "DREADNOUGHT", "BLOODFORGED GENERAL", "WAR-GOD AVATAR",
+            "SHADOWBLADE REAPER", "LORD OF THE CRIMSON PEAK", "TITAN BREAKER", "HIGH INQUISITOR OF VALOR",
+            "IMMORTAL CONQUEROR", "DRAGONSLAYER EMPEROR", "SOVEREIGN OF ASHES", "DOOMHAMMER ARCHON",
+            "ETERNAL SKULLCRUSHER", "MYTHIC DEMI-GOD OF WAR"
         ];
 
-        let playerLevel = parseInt(localStorage.getItem('pr_level') || '1', 10);
-        let playerXP = parseInt(localStorage.getItem('pr_xp') || '0', 10);
+        let playerLevel = parseInt(localStorage.getItem('arcade_level') || '1', 10);
+        let playerXP = parseInt(localStorage.getItem('arcade_xp') || '0', 10);
 
-        function getXpNeeded(level) {
-            return level * 500;
-        }
-
-        function getRankTitle(level) {
-            const idx = Math.min(level - 1, RANK_TITLES.length - 1);
-            return RANK_TITLES[idx];
-        }
+        function getXpNeeded(level) { return level * 500; }
+        function getRankTitle(level) { return RANK_TITLES[Math.min(level - 1, RANK_TITLES.length - 1)]; }
 
         function updateXPDisplay() {
             const needed = getXpNeeded(playerLevel);
@@ -494,17 +512,14 @@
         function addXP(points) {
             playerXP += points;
             let leveledUp = false;
-
             while (playerXP >= getXpNeeded(playerLevel)) {
                 playerXP -= getXpNeeded(playerLevel);
                 playerLevel += 1;
                 leveledUp = true;
             }
-
-            localStorage.setItem('pr_level', playerLevel);
-            localStorage.setItem('pr_xp', playerXP);
+            localStorage.setItem('arcade_level', playerLevel);
+            localStorage.setItem('arcade_xp', playerXP);
             updateXPDisplay();
-
             return leveledUp;
         }
 
@@ -530,7 +545,6 @@
             });
         }
 
-        // --- Themed Reel Symbols & Weights ---
         const ROWS = 3;
         const COLS = 5;
         let currentBet = 100;
@@ -679,14 +693,12 @@
                 }
             }
 
-            // Walking Falling Wild bloom drop (~7% chance)
             if (Math.random() < 0.07 && !isFreeCascade) {
                 const emptyCols = [0, 1, 2, 3, 4].filter(col => !activeFallingOrbs.some(o => o.c === col));
                 if (emptyCols.length > 0) {
                     const pickCol = emptyCols[Math.floor(Math.random() * emptyCols.length)];
                     activeFallingOrbs.push({
-                        r: 0,
-                        c: pickCol,
+                        r: 0, c: pickCol,
                         value: currentBet * 3,
                         label: `${formatCompact(currentBet * 3)}`
                     });
@@ -695,7 +707,6 @@
 
             updateGridDisplay();
 
-            // Line Win Evaluation
             let totalSpinWin = 0;
             const lineBet = Math.max(1, Math.floor(currentBet / PAYLINES.length));
             const winningLines = [];
@@ -749,14 +760,12 @@
                 winDisplay.textContent = '0';
             }
 
-            // Scatter check for Purple Roses Bonus Game
             const totalBonusScatters = baseGrid.flat().filter(s => s.id === 'BONUS').length;
             if (totalBonusScatters >= 3) {
                 await new Promise(res => setTimeout(res, 500));
                 await startRoseGardenBonus();
             }
 
-            // Walking Falling Wild Cascade
             if (activeFallingOrbs.length > 0) {
                 fallingBanner.classList.remove('hidden');
                 await new Promise(res => setTimeout(res, 600));
@@ -853,7 +862,7 @@
             });
         }
 
-        // --- BOTANICAL FORTUNE WHEEL ENGINE ---
+        // --- BOTANICAL FORTUNE WHEEL ---
         const WHEEL_SEGMENTS = [
             { label: "2X BOOST", type: "mult", val: 2, color: "#9333ea", textCol: "#f3e8ff" },
             { label: "MINI",     type: "jp",   val: 15, color: "#d97706", textCol: "#fef3c7" },
@@ -876,8 +885,6 @@
             const radius = wheelCanvas.width / 2;
 
             wheelCtx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
-
-            // Draw outer gold-leaf ring
             wheelCtx.save();
             wheelCtx.translate(radius, radius);
             wheelCtx.beginPath();
@@ -887,8 +894,6 @@
             wheelCtx.lineWidth = 6;
             wheelCtx.strokeStyle = '#f472b6';
             wheelCtx.stroke();
-
-            // Rotate wheel
             wheelCtx.rotate(angle);
 
             for (let i = 0; i < numSegs; i++) {
@@ -905,7 +910,6 @@
                 wheelCtx.strokeStyle = '#fbcfe8';
                 wheelCtx.stroke();
 
-                // Draw Text
                 wheelCtx.save();
                 wheelCtx.rotate(startAngle + arcSize / 2);
                 wheelCtx.textAlign = 'right';
@@ -914,7 +918,6 @@
                 wheelCtx.fillText(seg.label, radius - 24, 5);
                 wheelCtx.restore();
             }
-
             wheelCtx.restore();
         }
 
@@ -934,13 +937,10 @@
                     isWheelSpinning = true;
                     btnSpinWheel.disabled = true;
 
-                    // Random landing angle (at least 5 full spins + offset)
                     const extraRounds = 5 + Math.floor(Math.random() * 3);
                     const targetSegIndex = Math.floor(Math.random() * WHEEL_SEGMENTS.length);
                     const arcSize = (2 * Math.PI) / WHEEL_SEGMENTS.length;
                     
-                    // The pointer is at TOP (3*PI / 2)
-                    // We calculate target angle so chosen segment lands under pointer
                     const pointerAngle = 1.5 * Math.PI;
                     const segmentCenter = targetSegIndex * arcSize + arcSize / 2;
                     const finalAngle = extraRounds * 2 * Math.PI + (pointerAngle - segmentCenter);
@@ -953,13 +953,11 @@
                     function animateWheel(time) {
                         const elapsed = time - startTime;
                         const progress = Math.min(1, elapsed / duration);
-                        // Ease out cubic
                         const easeOut = 1 - Math.pow(1 - progress, 3);
                         const cur = startAngle + (finalAngle - startAngle) * easeOut;
 
                         drawWheel(cur);
 
-                        // Sound tick on segment cross
                         if (Math.floor(cur / (arcSize / 1.5)) !== lastTick) {
                             playSound('wheel-tick');
                             lastTick = Math.floor(cur / (arcSize / 1.5));
@@ -999,29 +997,21 @@
 
         function generateCardReward() {
             const r = Math.random();
-            // Wheel spin trigger chance (6%)
-            if (r < 0.06) {
-                return { type: 'WHEEL', label: '🎡 WHEEL', desc: 'WHEEL SPIN!' };
-            }
-            // Jackpots
+            if (r < 0.06) return { type: 'WHEEL', label: '🎡 WHEEL', desc: 'WHEEL SPIN!' };
             if (r < 0.07) return { type: 'GRAND', label: 'GRAND', val: currentBet * 1000, desc: '1000X GRAND!' };
             if (r < 0.09) return { type: 'MAJOR', label: 'MAJOR', val: currentBet * 250, desc: '250X MAJOR!' };
             if (r < 0.13) return { type: 'MINOR', label: 'MINOR', val: currentBet * 50, desc: '50X MINOR!' };
             if (r < 0.19) return { type: 'MINI', label: 'MINI', val: currentBet * 15, desc: '15X MINI!' };
 
-            // Extra Picks (+1 or +2)
             if (r < 0.28) {
                 const add = Math.random() < 0.75 ? 1 : 2;
                 return { type: 'PICKS', label: `+${add} PICKS`, val: add, desc: `+${add} EXTRA PICKS!` };
             }
-
-            // Global Win Multipliers
             if (r < 0.40) {
                 const mult = Math.random() < 0.7 ? 2 : 3;
                 return { type: 'MULT', label: `x${mult} MULT`, val: mult, desc: `${mult}X GARDEN BOOST!` };
             }
 
-            // Direct Credit Values
             const betMults = [2, 3, 5, 8, 10, 15];
             const chosen = betMults[Math.floor(Math.random() * betMults.length)];
             return { type: 'CREDIT', label: `${formatCompact(currentBet * chosen)}`, val: currentBet * chosen, desc: `+${formatCompact(currentBet * chosen)} CREDITS` };
@@ -1041,13 +1031,13 @@
                 document.getElementById('bonus-status-msg').textContent = "Choose carefully among the conservatory roses...";
                 document.getElementById('btn-bonus-collect').classList.add('hidden');
 
-                // Generate 15 Rose Cards
                 gardenCards = [];
                 for (let i = 0; i < 15; i++) {
                     gardenCards.push({
                         id: i,
                         reward: generateCardReward(),
-                        revealed: false
+                        revealed: false,
+                        playerPicked: false // Track if explicitly picked by the user
                     });
                 }
 
@@ -1058,6 +1048,7 @@
                     if (card.revealed || gardenPicks <= 0) return;
 
                     card.revealed = true;
+                    card.playerPicked = true;
                     gardenPicks--;
                     playSound('reveal');
 
@@ -1066,7 +1057,6 @@
 
                     if (rew.type === 'WHEEL') {
                         statusMsg.textContent = "🎡 BOTANICAL FORTUNE WHEEL TRIGGERED!";
-                        // Flip visual before launching wheel
                         renderGardenGrid();
                         await new Promise(r => setTimeout(r, 600));
                         
@@ -1093,10 +1083,8 @@
 
                     renderGardenGrid();
 
-                    // Check if picks ran out or all 15 picked
                     if (gardenPicks <= 0 || gardenCards.every(c => c.revealed)) {
-                        statusMsg.textContent = "All rose petals gathered! Collect your botanical winnings.";
-                        // Reveal all remaining unpicked cards dimmed
+                        statusMsg.textContent = "Garden finished! Your picked roses are highlighted in gold.";
                         gardenCards.forEach(c => c.revealed = true);
                         renderGardenGrid(true);
 
@@ -1125,12 +1113,20 @@
 
                     gardenCards.forEach((c, idx) => {
                         const cardContainer = document.createElement('div');
-                        cardContainer.className = 'rose-card aspect-[4/5] cursor-pointer';
+                        cardContainer.className = 'rose-card aspect-[4/5] cursor-pointer transition-transform';
+
+                        // Highlight player-picked items vs unpicked revealed items
+                        if (showAll) {
+                            if (c.playerPicked) {
+                                cardContainer.className += ' ring-4 ring-amber-400 rounded-lg scale-105 shadow-[0_0_15px_#fbbf24] z-10';
+                            } else {
+                                cardContainer.className += ' opacity-40 grayscale-[40%]';
+                            }
+                        }
 
                         const inner = document.createElement('div');
                         inner.className = `rose-inner w-full h-full relative rounded-lg border shadow-md ${c.revealed ? 'flipped' : ''}`;
 
-                        // Back side (Unopened rose bud - numbers removed)
                         const backSide = document.createElement('div');
                         backSide.className = 'rose-front absolute inset-0 bg-gradient-to-b from-purple-900/90 to-purple-950/90 border border-purple-700/60 rounded-lg flex flex-col items-center justify-center hover:border-pink-400 transition hover:scale-105';
                         backSide.innerHTML = `
@@ -1138,7 +1134,6 @@
                             <span class="text-[10px] text-pink-300 font-bold mt-1 tracking-wider uppercase">Pick</span>
                         `;
 
-                        // Front side (Revealed flower & prize)
                         const frontSide = document.createElement('div');
                         frontSide.className = 'rose-back absolute inset-0 rounded-lg flex flex-col items-center justify-center p-1 text-center font-bold';
 
@@ -1169,10 +1164,6 @@
                             frontSide.innerHTML = `<span class="text-xl">🌸</span><span class="text-[10px] font-black">${rew.label}</span>`;
                         }
 
-                        if (showAll && !c.revealed) {
-                            cardContainer.classList.add('opacity-40');
-                        }
-
                         inner.appendChild(backSide);
                         inner.appendChild(frontSide);
                         cardContainer.appendChild(inner);
@@ -1184,7 +1175,6 @@
             });
         }
 
-        // --- Event Listeners ---
         btnSpin.addEventListener('click', () => runBaseSpin(false));
 
         const INACTIVE_BET_CLASSES = ['bg-purple-900/60', 'text-purple-200', 'border-purple-800'];
@@ -1193,12 +1183,10 @@
         document.querySelectorAll('.bet-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 if (isSpinning) return;
-
                 document.querySelectorAll('.bet-btn').forEach(b => {
                     b.classList.remove(...ACTIVE_BET_CLASSES);
                     b.classList.add(...INACTIVE_BET_CLASSES);
                 });
-
                 btn.classList.remove(...INACTIVE_BET_CLASSES);
                 btn.classList.add(...ACTIVE_BET_CLASSES);
 
@@ -1207,12 +1195,10 @@
             });
         });
 
-        // Developer Test Buttons
         document.getElementById('btn-test-orb').addEventListener('click', () => {
             if (isSpinning) return;
             activeFallingOrbs = [{
-                r: 0,
-                c: 2,
+                r: 0, c: 2,
                 value: currentBet * 5,
                 label: `${formatCompact(currentBet * 5)}`
             }];
