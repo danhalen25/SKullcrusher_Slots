@@ -57,7 +57,6 @@
             100% { transform: translateY(-12px); filter: blur(3px); opacity: 0.6; }
         }
 
-        /* Flying Coin Particle */
         .flying-coin {
             position: fixed;
             pointer-events: none;
@@ -67,40 +66,47 @@
             transition: transform 0.75s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.75s ease-in;
         }
 
-        /* Hide scrollbars on pill container */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-between p-2 sm:p-4 text-xs sm:text-sm">
 
     <!-- Subtle Version Tag -->
     <div class="fixed bottom-1 right-2 text-[9px] text-stone-600 font-mono select-none pointer-events-none z-50">
-        v1.2.0
+        v1.4.0
     </div>
 
-    <!-- Top Jackpot Banners & Player Level Header -->
+    <!-- Header Navigation & Title -->
     <header class="w-full max-w-4xl flex flex-col items-center gap-2">
-        <div class="flex items-center justify-between w-full border-b border-amber-900/60 pb-2 px-2">
-            <h1 class="text-xl sm:text-2xl font-black text-amber-400 tracking-wider font-['Cinzel_Decorative']">SKULLCRUSHER SLOTS</h1>
+        <div class="flex items-center justify-between w-full border-b border-amber-900/60 pb-2 px-2 flex-wrap gap-2">
+            <div class="flex items-center gap-2">
+                <a href="../index.html" class="bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-600 text-xs px-2.5 py-1 rounded shadow transition flex items-center gap-1 font-bold">
+                    ⬅ LOBBY
+                </a>
+                <h1 class="text-lg sm:text-2xl font-black text-amber-400 tracking-wider font-['Cinzel_Decorative']">SKULLCRUSHER SLOTS</h1>
+            </div>
             
-            <!-- Hidden by default: only appears when '?dev=true' is in the URL -->
-            <div id="dev-controls" class="hidden flex gap-2">
-                <button id="btn-test-orb" class="bg-amber-800 hover:bg-amber-700 text-amber-200 border border-amber-500 text-xs px-2.5 py-1 rounded shadow transition">
-                    🔥 TEST FALLING ORB
+            <div class="flex items-center gap-2">
+                <button id="btn-open-rules" class="bg-stone-800 hover:bg-stone-700 text-amber-300 border border-amber-700 text-xs px-2.5 py-1 rounded shadow transition font-bold">
+                    📜 RULES
                 </button>
-                <button id="btn-test-bonus" class="bg-red-900 hover:bg-red-800 text-red-200 border border-red-500 text-xs px-2.5 py-1 rounded shadow transition">
-                    ⚡ TEST BONUS
+                <button id="btn-open-feedback" class="bg-stone-800 hover:bg-stone-700 text-amber-300 border border-amber-700 text-xs px-2.5 py-1 rounded shadow transition font-bold">
+                    💬 FEEDBACK
                 </button>
+                
+                <div id="dev-controls" class="hidden flex gap-1.5">
+                    <button id="btn-test-orb" class="bg-amber-800 hover:bg-amber-700 text-amber-200 border border-amber-500 text-xs px-2 py-1 rounded shadow transition">
+                        🔥 TEST ORB
+                    </button>
+                    <button id="btn-test-bonus" class="bg-red-900 hover:bg-red-800 text-red-200 border border-red-500 text-xs px-2 py-1 rounded shadow transition">
+                        ⚡ TEST BONUS
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- Level & XP Status Bar -->
+        <!-- Unified Level Bar -->
         <div class="w-full bg-stone-900/80 border border-stone-800 rounded-lg p-2 flex items-center justify-between gap-3 shadow-inner">
             <div class="flex items-center gap-2">
                 <span class="bg-amber-600 text-stone-950 font-black px-2 py-0.5 rounded text-xs tracking-wider">LEVEL <span id="display-level">1</span></span>
@@ -110,7 +116,7 @@
                 <div class="w-full bg-stone-950 rounded-full h-2.5 border border-amber-900/50 overflow-hidden">
                     <div id="xp-bar" class="bg-gradient-to-r from-amber-600 to-yellow-400 h-full transition-all duration-500" style="width: 0%"></div>
                 </div>
-                <span class="text-[10px] text-stone-400 mt-0.5" id="xp-text">0 / 500 XP (Earn on 10X+ Big Wins)</span>
+                <span class="text-[10px] text-stone-400 mt-0.5" id="xp-text">0 / 500 XP (Earn on 10X+ Wins)</span>
             </div>
         </div>
 
@@ -138,11 +144,7 @@
     <!-- Main Reel Area (5x3) -->
     <main id="slot-machine" class="relative w-full max-w-4xl bg-stone-950/90 gold-border rounded-xl p-3 sm:p-4 my-2 flex flex-col items-center">
         <svg id="payline-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></svg>
-
-        <div id="reels-grid" class="grid grid-cols-5 gap-1.5 sm:gap-2.5 w-full aspect-[5/3] max-h-[440px]">
-            <!-- 15 slots generated via JS -->
-        </div>
-
+        <div id="reels-grid" class="grid grid-cols-5 gap-1.5 sm:gap-2.5 w-full aspect-[5/3] max-h-[440px]"></div>
         <div id="falling-banner" class="hidden mt-2 text-center text-amber-400 font-bold text-xs sm:text-sm animate-pulse tracking-wide">
             🔥 FALLING STICK & WIN ACTIVE! FREE CASCADE RESPIN...
         </div>
@@ -151,7 +153,6 @@
     <!-- Console Controls -->
     <footer class="w-full max-w-4xl bg-stone-900/90 border-t border-amber-900/80 p-2 sm:p-3 rounded-t-xl flex flex-col gap-2.5">
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <!-- Bank & Last Win -->
             <div class="flex items-center gap-4">
                 <div id="bank-container" class="relative p-1 rounded transition-colors duration-300">
                     <div class="text-[10px] text-stone-400 uppercase tracking-widest">Bank Balance</div>
@@ -163,16 +164,15 @@
                 </div>
             </div>
 
-            <!-- Big Spin Button -->
             <button id="btn-spin" class="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-stone-950 font-black text-base sm:text-lg rounded-lg shadow-[0_0_20px_rgba(212,175,55,0.5)] transition active:scale-95 disabled:opacity-50 disabled:pointer-events-none">
                 SPIN (100)
             </button>
         </div>
 
-        <!-- Expanded Bet Selection with Scrollable Row -->
+        <!-- Bet Tiers -->
         <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
             <span class="text-xs text-stone-400 font-bold mr-1 shrink-0">BET:</span>
-            <div class="inline-flex rounded-md shadow-sm shrink-0 gap-1" role="group">
+            <div class="inline-flex rounded-md shadow-sm shrink-0 gap-1">
                 <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-stone-800 border border-stone-700 text-stone-300 rounded hover:bg-stone-700 transition active:scale-95" data-bet="1">1</button>
                 <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-stone-800 border border-stone-700 text-stone-300 rounded hover:bg-stone-700 transition active:scale-95" data-bet="10">10</button>
                 <button type="button" class="bet-btn px-2.5 py-1 text-xs font-bold bg-amber-600 border border-amber-500 text-stone-950 rounded hover:bg-amber-500 transition active:scale-95" data-bet="100">100</button>
@@ -187,6 +187,47 @@
             </div>
         </div>
     </footer>
+
+    <!-- RULES MODAL -->
+    <div id="modal-rules" class="fixed inset-0 bg-black/85 flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-stone-900 border-2 border-amber-500 rounded-2xl max-w-lg w-full p-5 max-h-[85vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-amber-900/60 pb-2 mb-3">
+                <h3 class="text-lg font-black text-amber-400">SKULLCRUSHER PAYTABLE & RULES</h3>
+                <button id="btn-close-rules" class="text-stone-400 hover:text-white font-bold text-lg">✕</button>
+            </div>
+            <div class="space-y-3 text-xs text-stone-300 leading-relaxed">
+                <div>
+                    <h4 class="font-bold text-amber-300">PAYLINES (5 Lines):</h4>
+                    <p>Wins pay left to right on 3 or more matching symbols across the 5 paylines.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-amber-300">WILD SYMBOL (WILD):</h4>
+                    <p>Substitutes for all normal symbols except BONUS dragon scatters.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-amber-300">FALLING STICK & WIN ORBS:</h4>
+                    <p>When an orb lands on the top row, it awards its credit value, acts as a wild, and steps down 1 row each turn with free cascade respins until exiting the grid.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-amber-300">HOLD & SPIN BONUS:</h4>
+                    <p>Hit 3 dragon scatters (🐉) to trigger the expanding grid. Collect orbs to reset spins to 3 and unlock up to 8 total rows. Mini, Minor, Major, and Grand jackpots appear as special orbs!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FEEDBACK MODAL -->
+    <div id="modal-feedback" class="fixed inset-0 bg-black/85 flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-stone-900 border-2 border-amber-500 rounded-2xl max-w-sm w-full p-5 text-center">
+            <h3 class="text-lg font-black text-amber-400 mb-2">PLAYER FEEDBACK</h3>
+            <p class="text-xs text-stone-300 mb-3">Got ideas for new machines or features? Let us know!</p>
+            <textarea id="feedback-input" class="w-full bg-stone-950 border border-stone-700 rounded p-2 text-xs text-stone-200 resize-none h-24 mb-3 focus:outline-none focus:border-amber-500" placeholder="Type feedback here..."></textarea>
+            <div class="flex justify-end gap-2">
+                <button id="btn-cancel-feedback" class="px-3 py-1.5 bg-stone-800 text-stone-300 rounded font-bold hover:bg-stone-700">Cancel</button>
+                <button id="btn-send-feedback" class="px-4 py-1.5 bg-amber-600 text-stone-950 rounded font-black hover:bg-amber-500">Send</button>
+            </div>
+        </div>
+    </div>
 
     <!-- BIG WIN OVERLAY -->
     <div id="modal-big-win" class="fixed inset-0 bg-black/85 flex items-center justify-center hidden z-50">
@@ -216,7 +257,7 @@
         </div>
     </div>
 
-    <!-- HARDENED HOLD & SPIN BONUS OVERLAY (5x8 Grid with Falling Animation) -->
+    <!-- HOLD & SPIN BONUS OVERLAY (With Center Coin Burst & Collection Button) -->
     <div id="modal-bonus" class="fixed inset-0 bg-stone-950/95 flex flex-col items-center justify-between p-3 sm:p-5 hidden z-40 overflow-y-auto">
         <div class="w-full max-w-3xl flex justify-between items-center border-b border-amber-900/60 pb-2">
             <div class="text-base sm:text-xl font-black text-amber-400 font-['Cinzel_Decorative']">HOLD & SPIN: ROW UNLOCK</div>
@@ -226,24 +267,38 @@
             </div>
         </div>
 
-        <div id="bonus-grid" class="grid grid-cols-5 gap-1.5 sm:gap-2 w-full max-w-xl my-auto py-2">
-            <!-- 40 spaces populated via JS -->
-        </div>
+        <div id="bonus-grid" class="grid grid-cols-5 gap-1.5 sm:gap-2 w-full max-w-xl my-auto py-2 relative"></div>
 
         <div class="w-full max-w-xl flex justify-between items-center bg-stone-900 border border-stone-700 p-2 rounded">
             <div class="text-xs text-stone-400" id="bonus-info">Row 5: 10 Orbs | Row 6: 15 | Row 7: 20 | Row 8: 26</div>
-            <button id="btn-bonus-spin" class="px-6 py-2 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black rounded shadow active:scale-95 disabled:opacity-50">
-                RESPIN
-            </button>
+            <div class="flex gap-2">
+                <button id="btn-bonus-spin" class="px-6 py-2 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black rounded shadow active:scale-95 disabled:opacity-50">
+                    RESPIN
+                </button>
+                <button id="btn-bonus-collect-all" class="hidden px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-400 text-stone-950 font-black rounded shadow active:scale-95">
+                    COLLECT WINNINGS
+                </button>
+            </div>
         </div>
     </div>
 
     <script>
-        // --- Developer Mode Check ---
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('dev') === 'true') {
             document.getElementById('dev-controls').classList.remove('hidden');
         }
+
+        // --- Rules & Feedback Modal Listeners ---
+        document.getElementById('btn-open-rules').onclick = () => document.getElementById('modal-rules').classList.remove('hidden');
+        document.getElementById('btn-close-rules').onclick = () => document.getElementById('modal-rules').classList.add('hidden');
+        document.getElementById('btn-open-feedback').onclick = () => document.getElementById('modal-feedback').classList.remove('hidden');
+        document.getElementById('btn-cancel-feedback').onclick = () => document.getElementById('modal-feedback').classList.add('hidden');
+        document.getElementById('btn-send-feedback').onclick = () => {
+            const val = document.getElementById('feedback-input').value.trim();
+            if (val) alert("Thank you! Feedback recorded.");
+            document.getElementById('feedback-input').value = '';
+            document.getElementById('modal-feedback').classList.add('hidden');
+        };
 
         // --- Web Audio Synthesizer ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -308,17 +363,17 @@
             }
         }
 
-        // --- Persistent Bank Balance (Feedback #1) ---
-        let bank = parseInt(localStorage.getItem('sc_bank') || '10000', 10);
+        // --- Unified Shared Bank & Progression ---
+        let bank = parseInt(localStorage.getItem('arcade_bank') || '10000', 10);
         if (isNaN(bank) || bank <= 0) bank = 10000;
 
         function setBank(val) {
             bank = Math.max(0, val);
-            localStorage.setItem('sc_bank', bank);
+            localStorage.setItem('arcade_bank', bank);
             document.getElementById('display-bank').textContent = bank.toLocaleString();
         }
 
-        // --- Money Fill-Up / Coin Flying Effect (Feedback #8) ---
+        // Normal base game flying coin animation
         function animateCoinFly(amount, sourceElements) {
             return new Promise(resolve => {
                 const target = document.getElementById('bank-container');
@@ -343,7 +398,6 @@
                         startY = srcRect.top + srcRect.height / 2;
                     }
 
-                    // Spread start slightly
                     startX += (Math.random() - 0.5) * 60;
                     startY += (Math.random() - 0.5) * 60;
 
@@ -369,41 +423,55 @@
             });
         }
 
-        // --- Expanded Level Names past Level 10 (Feedback #7) ---
+        // Dedicated 360 Coin Explosion for Bonus Round
+        function animateBonusCoinExplosion() {
+            return new Promise(resolve => {
+                const centerX = window.innerWidth / 2;
+                const centerY = window.innerHeight / 2;
+                const totalCoins = 24;
+                let done = 0;
+
+                for (let i = 0; i < totalCoins; i++) {
+                    const coin = document.createElement('div');
+                    coin.className = 'flying-coin';
+                    coin.textContent = '🪙';
+                    coin.style.left = `${centerX}px`;
+                    coin.style.top = `${centerY}px`;
+                    document.body.appendChild(coin);
+
+                    const angle = (i / totalCoins) * (2 * Math.PI);
+                    const distance = 140 + Math.random() * 160;
+                    const destX = Math.cos(angle) * distance;
+                    const destY = Math.sin(angle) * distance;
+
+                    setTimeout(() => {
+                        coin.style.transform = `translate(${destX}px, ${destY}px) scale(${1.2 + Math.random() * 0.5})`;
+                        coin.style.opacity = '0';
+                    }, 30);
+
+                    setTimeout(() => {
+                        playSound('coin');
+                        coin.remove();
+                        done++;
+                        if (done >= totalCoins) resolve();
+                    }, 800);
+                }
+            });
+        }
+
         const RANK_TITLES = [
-            "APPRENTICE WARRIOR",      // Lvl 1
-            "GLADIATOR",               // Lvl 2
-            "SHIELD BEARER",           // Lvl 3
-            "BATTLE COMMANDER",        // Lvl 4
-            "WARLORD",                 // Lvl 5
-            "IRON CHAMPION",           // Lvl 6
-            "SKULLCRUSHER KING",       // Lvl 7
-            "DREADNOUGHT",             // Lvl 8
-            "BLOODFORGED GENERAL",     // Lvl 9
-            "WAR-GOD AVATAR",          // Lvl 10
-            "SHADOWBLADE REAPER",      // Lvl 11
-            "LORD OF THE CRIMSON PEAK",// Lvl 12
-            "TITAN BREAKER",           // Lvl 13
-            "HIGH INQUISITOR OF VALOR",// Lvl 14
-            "IMMORTAL CONQUEROR",      // Lvl 15
-            "DRAGONSLAYER EMPEROR",    // Lvl 16
-            "SOVEREIGN OF ASHES",      // Lvl 17
-            "DOOMHAMMER ARCHON",       // Lvl 18
-            "ETERNAL SKULLCRUSHER",    // Lvl 19
-            "MYTHIC DEMI-GOD OF WAR"   // Lvl 20+
+            "APPRENTICE WARRIOR", "GLADIATOR", "SHIELD BEARER", "BATTLE COMMANDER", "WARLORD",
+            "IRON CHAMPION", "SKULLCRUSHER KING", "DREADNOUGHT", "BLOODFORGED GENERAL", "WAR-GOD AVATAR",
+            "SHADOWBLADE REAPER", "LORD OF THE CRIMSON PEAK", "TITAN BREAKER", "HIGH INQUISITOR OF VALOR",
+            "IMMORTAL CONQUEROR", "DRAGONSLAYER EMPEROR", "SOVEREIGN OF ASHES", "DOOMHAMMER ARCHON",
+            "ETERNAL SKULLCRUSHER", "MYTHIC DEMI-GOD OF WAR"
         ];
 
-        let playerLevel = parseInt(localStorage.getItem('sc_level') || '1', 10);
-        let playerXP = parseInt(localStorage.getItem('sc_xp') || '0', 10);
+        let playerLevel = parseInt(localStorage.getItem('arcade_level') || '1', 10);
+        let playerXP = parseInt(localStorage.getItem('arcade_xp') || '0', 10);
 
-        function getXpNeeded(level) {
-            return level * 500;
-        }
-
-        function getRankTitle(level) {
-            const idx = Math.min(level - 1, RANK_TITLES.length - 1);
-            return RANK_TITLES[idx];
-        }
+        function getXpNeeded(level) { return level * 500; }
+        function getRankTitle(level) { return RANK_TITLES[Math.min(level - 1, RANK_TITLES.length - 1)]; }
 
         function updateXPDisplay() {
             const needed = getXpNeeded(playerLevel);
@@ -411,23 +479,20 @@
             document.getElementById('display-level').textContent = playerLevel;
             document.getElementById('display-rank-title').textContent = getRankTitle(playerLevel);
             document.getElementById('xp-bar').style.width = `${pct}%`;
-            document.getElementById('xp-text').textContent = `${playerXP.toLocaleString()} / ${needed.toLocaleString()} XP (Earn on 10X+ Big Wins)`;
+            document.getElementById('xp-text').textContent = `${playerXP.toLocaleString()} / ${needed.toLocaleString()} XP (Earn on 10X+ Wins)`;
         }
 
         function addXP(points) {
             playerXP += points;
             let leveledUp = false;
-
             while (playerXP >= getXpNeeded(playerLevel)) {
                 playerXP -= getXpNeeded(playerLevel);
                 playerLevel += 1;
                 leveledUp = true;
             }
-
-            localStorage.setItem('sc_level', playerLevel);
-            localStorage.setItem('sc_xp', playerXP);
+            localStorage.setItem('arcade_level', playerLevel);
+            localStorage.setItem('arcade_xp', playerXP);
             updateXPDisplay();
-
             return leveledUp;
         }
 
@@ -453,7 +518,7 @@
             });
         }
 
-        // --- Game Definitions & State ---
+        // --- Game Setup ---
         const ROWS = 3;
         const COLS = 5;
         let currentBet = 100;
@@ -606,7 +671,6 @@
                 }
             }
 
-            // Falling orb chance (~7%)
             if (Math.random() < 0.07 && !isFreeCascade) {
                 const emptyCols = [0, 1, 2, 3, 4].filter(col => !activeFallingOrbs.some(o => o.c === col));
                 if (emptyCols.length > 0) {
@@ -664,7 +728,6 @@
                 playSound('win');
                 winDisplay.textContent = totalSpinWin.toLocaleString();
 
-                // Trigger coin filling effect
                 const winElements = winningLines.flatMap(w => w.line.map(([r,c]) => document.getElementById(`cell-${r}-${c}`)));
                 await animateCoinFly(totalSpinWin, winElements);
                 setBank(bank + totalSpinWin);
@@ -676,14 +739,12 @@
                 winDisplay.textContent = '0';
             }
 
-            // Scatter check
             const totalBonusScatters = baseGrid.flat().filter(s => s.id === 'BONUS').length;
             if (totalBonusScatters >= 3) {
                 await new Promise(res => setTimeout(res, 500));
                 await startHoldAndSpinBonus();
             }
 
-            // Step down falling orbs
             if (activeFallingOrbs.length > 0) {
                 fallingBanner.classList.remove('hidden');
                 await new Promise(res => setTimeout(res, 600));
@@ -780,7 +841,7 @@
             });
         }
 
-        // --- HARDENED HOLD & SPIN BONUS ENGINE (Feedback #2, #4, #5) ---
+        // --- HOLD & SPIN BONUS ENGINE ---
         const BONUS_ROWS = 8;
         const BONUS_COLS = 5;
         let bonusActiveRows = 4;
@@ -788,19 +849,24 @@
         let bonusGrid = [];
         let bonusTotalOrbs = 0;
 
-        // Harder row unlocks (Feedback #2)
         const UNLOCK_THRESHOLDS = { 4: 10, 5: 15, 6: 20, 7: 26 };
 
         function startHoldAndSpinBonus() {
             return new Promise(resolve => {
                 const modal = document.getElementById('modal-bonus');
+                const btnRespin = document.getElementById('btn-bonus-spin');
+                const btnCollectAll = document.getElementById('btn-bonus-collect-all');
+                
                 modal.classList.remove('hidden');
+                btnCollectAll.classList.add('hidden');
+                btnRespin.classList.remove('hidden');
+                btnRespin.disabled = false;
+
                 bonusActiveRows = 4;
                 bonusRespins = 3;
                 bonusTotalOrbs = 0;
                 bonusGrid = Array(BONUS_ROWS).fill(null).map(() => Array(BONUS_COLS).fill(null));
 
-                // 5 initial seeded orbs (harder start)
                 let seeded = 0;
                 while (seeded < 5) {
                     const r = Math.floor(Math.random() * 4);
@@ -814,13 +880,8 @@
                 checkBonusRowUnlocks();
                 renderBonusGrid(false);
 
-                const btnRespin = document.getElementById('btn-bonus-spin');
-                btnRespin.disabled = false;
-
                 const runBonusTurn = async () => {
                     btnRespin.disabled = true;
-
-                    // Animate empty cells rolling down (Feedback #4)
                     renderBonusGrid(true);
                     playSound('spin');
                     await new Promise(r => setTimeout(r, 450));
@@ -828,7 +889,6 @@
                     let landed = 0;
                     for (let r = 0; r < bonusActiveRows; r++) {
                         for (let c = 0; c < BONUS_COLS; c++) {
-                            // Reduced hit probability to 8.5% (Feedback #2)
                             if (!bonusGrid[r][c] && Math.random() < 0.085) {
                                 bonusGrid[r][c] = generateBonusOrb();
                                 landed++;
@@ -849,20 +909,25 @@
 
                     const isFull = bonusActiveRows === 8 && bonusGrid.flat().every(cell => cell !== null);
                     if (bonusRespins <= 0 || isFull) {
-                        await new Promise(r => setTimeout(r, 700));
-                        let finalBonusWin = bonusGrid.flat().filter(Boolean).reduce((acc, o) => acc + o.value, 0);
-                        if (isFull) finalBonusWin += currentBet * 1000;
+                        // Respins finished -> Show Collect Winnings Button
+                        btnRespin.classList.add('hidden');
+                        btnCollectAll.classList.remove('hidden');
 
-                        await animateCoinFly(finalBonusWin, []);
-                        setBank(bank + finalBonusWin);
+                        btnCollectAll.onclick = async () => {
+                            btnCollectAll.classList.add('hidden');
+                            let finalBonusWin = bonusGrid.flat().filter(Boolean).reduce((acc, o) => acc + o.value, 0);
+                            if (isFull) finalBonusWin += currentBet * 1000;
 
-                        modal.classList.add('hidden');
-                        btnRespin.removeEventListener('click', runBonusTurn);
+                            // Explosion of coins directly on screen
+                            await animateBonusCoinExplosion();
+                            setBank(bank + finalBonusWin);
 
-                        if (finalBonusWin >= currentBet * 10) {
-                            await showBigWin(finalBonusWin);
-                        }
-                        resolve();
+                            modal.classList.add('hidden');
+                            if (finalBonusWin >= currentBet * 10) {
+                                await showBigWin(finalBonusWin);
+                            }
+                            resolve();
+                        };
                         return;
                     }
 
@@ -873,21 +938,12 @@
             });
         }
 
-        // Color-matched jackpots (Feedback #5)
         function generateBonusOrb() {
             const r = Math.random();
-            if (r < 0.0005) {
-                return { value: currentBet * 1000, label: "GRAND", type: 'grand' };
-            }
-            if (r < 0.005) {
-                return { value: currentBet * 250, label: "MAJOR", type: 'major' };
-            }
-            if (r < 0.03) {
-                return { value: currentBet * 50, label: "MINOR", type: 'minor' };
-            }
-            if (r < 0.09) {
-                return { value: currentBet * 15, label: "MINI", type: 'mini' };
-            }
+            if (r < 0.0005) return { value: currentBet * 1000, label: "GRAND", type: 'grand' };
+            if (r < 0.005)  return { value: currentBet * 250, label: "MAJOR", type: 'major' };
+            if (r < 0.03)   return { value: currentBet * 50, label: "MINOR", type: 'minor' };
+            if (r < 0.09)   return { value: currentBet * 15, label: "MINI", type: 'mini' };
             const mult = [1, 2, 3, 5, 8][Math.floor(Math.random() * 5)];
             return { value: currentBet * mult, label: `${formatCompact(currentBet * mult)}`, type: 'credit' };
         }
@@ -921,7 +977,6 @@
                     } else {
                         const orb = bonusGrid[r][c];
                         if (orb) {
-                            // Colors match regular reel jackpots
                             if (orb.type === 'grand') {
                                 cell.className += ' bg-yellow-950 border-yellow-300 text-yellow-300 shadow-[0_0_15px_#ffd700] animate-pulse';
                             } else if (orb.type === 'major') {
@@ -949,7 +1004,6 @@
             }
         }
 
-        // --- Event Listeners ---
         btnSpin.addEventListener('click', () => runBaseSpin(false));
 
         const INACTIVE_BET_CLASSES = ['bg-stone-800', 'text-stone-300', 'border-stone-700'];
@@ -958,12 +1012,10 @@
         document.querySelectorAll('.bet-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 if (isSpinning) return;
-
                 document.querySelectorAll('.bet-btn').forEach(b => {
                     b.classList.remove(...ACTIVE_BET_CLASSES);
                     b.classList.add(...INACTIVE_BET_CLASSES);
                 });
-
                 btn.classList.remove(...INACTIVE_BET_CLASSES);
                 btn.classList.add(...ACTIVE_BET_CLASSES);
 
@@ -972,12 +1024,10 @@
             });
         });
 
-        // Test buttons (?dev=true)
         document.getElementById('btn-test-orb').addEventListener('click', () => {
             if (isSpinning) return;
             activeFallingOrbs = [{
-                r: 0,
-                c: 2,
+                r: 0, c: 2,
                 value: currentBet * 5,
                 label: `${formatCompact(currentBet * 5)}`
             }];
